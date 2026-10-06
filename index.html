@@ -21,18 +21,23 @@
                 <span class="text-lg sm:text-xl font-bold text-navy tracking-tight">MyShop<span class="text-emerald-600">Guard</span></span>
             </div>
             
-            <!-- Desktop Nav Links -->
-            <div class="hidden md:flex items-center space-x-8 font-semibold text-slate-600 text-sm">
+            <!-- Landing Nav Links -->
+            <div id="landing-nav-links" class="hidden md:flex items-center space-x-8 font-semibold text-slate-600 text-sm">
                 <a href="#about" class="hover:text-navy transition">About Us</a>
                 <a href="#services" class="hover:text-navy transition">Our Services</a>
             </div>
 
             <div class="flex items-center space-x-3">
+                <!-- Landing Sign In Button -->
                 <div id="auth-nav-container">
                     <button onclick="openAuthModal('signin')" class="bg-navy hover:bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-md">Sign In</button>
                 </div>
-                <!-- Mobile Menu Button (3 Lines) -->
-                <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-navy focus:outline-none">
+                <!-- Logged-in Header Sign Out Button -->
+                <div id="logout-nav-container" class="hidden">
+                    <button onclick="handleLogout()" class="text-xs bg-rose-50 text-rose-700 font-bold px-4 py-2.5 rounded-xl border border-rose-200 hover:bg-rose-100 transition shadow-sm">Sign Out</button>
+                </div>
+                <!-- App Menu Button (3 Lines - Only in App) -->
+                <button id="app-menu-btn" onclick="toggleMobileMenu()" class="hidden md:hidden p-2 text-navy focus:outline-none">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
@@ -40,10 +45,9 @@
             </div>
         </div>
 
-        <!-- Mobile Dropdown Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 px-6 py-4 space-y-3 shadow-lg">
-            <a href="#about" onclick="toggleMobileMenu()" class="block font-semibold text-slate-600 text-sm hover:text-navy">About Us</a>
-            <a href="#services" onclick="toggleMobileMenu()" class="block font-semibold text-slate-600 text-sm hover:text-navy">Our Services</a>
+        <!-- App Dropdown Menu (Includes My Profile) -->
+        <div id="mobile-menu" class="hidden bg-white border-b border-slate-200 px-6 py-4 space-y-3 shadow-lg">
+            <button onclick="toggleMobileMenu(); openProfileModal();" class="block w-full text-left font-semibold text-slate-700 text-sm hover:text-navy py-1">👤 My Profile</button>
         </div>
     </header>
 
@@ -100,6 +104,30 @@
         </div>
     </div>
 
+    <!-- MY PROFILE MODAL -->
+    <div id="profile-modal" class="fixed inset-0 z-50 bg-slate-950/50 hidden flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
+            <h3 class="text-2xl font-bold text-navy mb-2">My Profile</h3>
+            <p class="text-slate-500 text-sm mb-6">Update your shop credentials.</p>
+            <form onsubmit="handleProfileUpdate(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Shop Name</label>
+                    <input type="text" id="profile-shopname" required class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Email Address</label>
+                    <input type="email" id="profile-email" required class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Phone Number (9 Digits)</label>
+                    <input type="text" id="profile-phone" required maxlength="9" placeholder="6XXXXXXXX" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
+                </div>
+                <button type="submit" class="w-full bg-navy hover:bg-slate-900 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-md">Save Changes</button>
+            </form>
+            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 font-bold p-2">✕</button>
+        </div>
+    </div>
+
     <!-- MAIN APP CONTAINER -->
     <main class="flex-grow pt-24">
         
@@ -110,7 +138,7 @@
                     <h2 id="dashboard-title" class="text-2xl font-bold text-navy">Shop Ledger</h2>
                     <p id="active-shop-info" class="text-xs text-slate-500 mt-1"></p>
                 </div>
-                <button onclick="handleLogout()" class="text-xs bg-rose-50 text-rose-700 font-semibold px-4 py-2 rounded-xl border border-rose-200 hover:bg-rose-100 transition">Sign Out</button>
+                <button onclick="openProfileModal()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl border border-slate-300 transition shadow-sm">Edit Profile</button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -128,11 +156,11 @@
                 <h3 class="font-bold text-lg text-navy mb-4">Add New Record</h3>
                 <form id="ledger-form" onsubmit="addEntry(event)" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <input type="text" id="entry-name" required placeholder="Name" class="bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
-                    <input type="text" id="entry-whatsapp" required maxlength="9" placeholder="Phone (9 digits)" class="bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
+                    <input type="text" id="entry-whatsapp" required maxlength="9" placeholder="Phone (6XXXXXXXX)" class="bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
                     <input type="number" id="entry-amount" required placeholder="Amount (CFA)" class="bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
                     <select id="entry-type" class="bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
                         <option value="they_owe_me">Customer Owes Me</option>
-                        <option value="i_owe_them">I Owe Supplier</option>
+                        <option value="i_owe_them">I Owe Customer</option>
                     </select>
                     <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-md">Save Record</button>
                 </form>
@@ -162,25 +190,35 @@
                 <div class="max-w-3xl mx-auto relative z-10 flex flex-col items-center">
                     <span class="bg-amber-500 text-slate-950 font-bold px-4 py-1 rounded-md text-xs uppercase tracking-wider inline-block mb-6 shadow-md">Simple Digital Ledger</span>
                     <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-tight">Keep Track of Shop Credit Easily.</h1>
-                    <p class="text-slate-200 text-base md:text-lg mb-8 leading-relaxed max-w-xl">Replace your paper notebook with a clean digital book to track customers who owe you and suppliers you need to pay.</p>
+                    <p class="text-slate-200 text-base md:text-lg mb-8 leading-relaxed max-w-xl">Replace your paper notebook with a clean digital book to track customers who owe you and debts you need to settle.</p>
                     <button onclick="openAuthModal('register')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-4 rounded-xl text-base transition shadow-xl">Create Free Shop Account</button>
                 </div>
             </div>
 
-            <!-- About Us Section -->
+            <!-- About Us Section (Expanded for Competition Presentation) -->
             <section id="about" class="py-24 px-6 max-w-7xl mx-auto">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                     <div>
-                        <h2 class="text-3xl font-bold text-navy mb-6">About Us</h2>
-                        <p class="text-slate-600 leading-relaxed mb-4">MyShopGuard was built to help shop owners keep accurate records of credit sales and debts without losing pages or getting confused.</p>
-                        <p class="text-slate-600 leading-relaxed">Everything is stored safely on your device with a personal PIN so your business records remain completely private.</p>
+                        <h2 class="text-3xl font-bold text-navy mb-6">About MyShopGuard</h2>
+                        <p class="text-slate-600 leading-relaxed mb-4">MyShopGuard was engineered to solve a common daily challenge faced by local shop owners and micro-retailers: managing credit sales and tracking customer debts without the frustration of lost paper notebooks or calculation errors.</p>
+                        <p class="text-slate-600 leading-relaxed mb-4">Built with a deep focus on user experience and data privacy, our platform guarantees that vendors can seamlessly record transactions, instantly calculate balances, and follow up on payments securely using PIN protection.</p>
+                        <p class="text-slate-600 leading-relaxed">Designed as a modern digital solution for community commerce, MyShopGuard bridges everyday trade with reliable web technology.</p>
                     </div>
-                    <div class="bg-slate-50 border border-slate-200 p-8 rounded-3xl shadow-sm">
-                        <h3 class="text-lg font-bold text-navy mb-4">Why Shop Owners Use It</h3>
-                        <ul class="space-y-3 text-sm text-slate-600">
-                            <li>✓ Simple and easy to use every day</li>
-                            <li>✓ Send quick payment reminders via WhatsApp</li>
-                            <li>✓ Safe access with your own 4-digit PIN</li>
+                    <div class="bg-slate-50 border border-slate-200 p-8 rounded-3xl shadow-sm space-y-6">
+                        <h3 class="text-lg font-bold text-navy">Why Shop Owners Choose It</h3>
+                        <ul class="space-y-4 text-sm text-slate-600">
+                            <li class="flex items-start space-x-3">
+                                <span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-xs mt-0.5">✓</span>
+                                <span><strong>Instant WhatsApp Reminders:</strong> Send polite, automated payment reminder text messages directly to customers' phones with one click.</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-xs mt-0.5">✓</span>
+                                <span><strong>Secure Access Control:</strong> Personal 4-digit PIN authentication ensures complete confidentiality over financial records.</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-xs mt-0.5">✓</span>
+                                <span><strong>Lightning Fast Performance:</strong> Optimized for mobile phones and low-bandwidth environments for reliable daily usage.</span>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -191,23 +229,23 @@
                 <div class="max-w-7xl mx-auto">
                     <div class="text-center max-w-xl mx-auto mb-16">
                         <h2 class="text-3xl font-bold text-navy mb-4">Our Services</h2>
-                        <p class="text-slate-600 text-sm">Tools to help you manage your shop credit.</p>
+                        <p class="text-slate-600 text-sm">Empowering micro-businesses with efficient digital credit tools.</p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                             <div class="w-10 h-10 bg-navy text-white rounded-xl flex items-center justify-center font-bold text-sm mb-6">1</div>
-                            <h3 class="font-bold text-base text-navy mb-2">Credit Ledger</h3>
-                            <p class="text-slate-600 text-sm">Record customer debts and supplier balances clearly in one place.</p>
+                            <h3 class="font-bold text-base text-navy mb-2">Digital Credit Ledger</h3>
+                            <p class="text-slate-600 text-sm">Organize customer debts and credit balances seamlessly without paperwork clutter.</p>
                         </div>
                         <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                             <div class="w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center font-bold text-sm mb-6">2</div>
-                            <h3 class="font-bold text-base text-navy mb-2">WhatsApp Reminders</h3>
-                            <p class="text-slate-600 text-sm">Send polite payment reminder messages to debtors with one click.</p>
+                            <h3 class="font-bold text-base text-navy mb-2">Automated WhatsApp Alerts</h3>
+                            <p class="text-slate-600 text-sm">Communicate balances and streamline debt collection through direct WhatsApp links.</p>
                         </div>
                         <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                             <div class="w-10 h-10 bg-amber-500 text-white rounded-xl flex items-center justify-center font-bold text-sm mb-6">3</div>
-                            <h3 class="font-bold text-base text-navy mb-2">PIN Security</h3>
-                            <p class="text-slate-600 text-sm">Keep your shop records safe and recover your PIN using your email.</p>
+                            <h3 class="font-bold text-base text-navy mb-2">Profile & Security Control</h3>
+                            <p class="text-slate-600 text-sm">Manage shop credentials, profile settings, and recovery securely with instant email PIN retrieval.</p>
                         </div>
                     </div>
                 </div>
@@ -230,6 +268,10 @@
         function switchView(view) {
             document.getElementById('landing-view').classList.toggle('hidden', view !== 'landing');
             document.getElementById('app-view').classList.toggle('hidden', view !== 'app');
+            document.getElementById('landing-nav-links').classList.toggle('hidden', view !== 'landing');
+            document.getElementById('auth-nav-container').classList.toggle('hidden', view !== 'landing');
+            document.getElementById('logout-nav-container').classList.toggle('hidden', view !== 'app');
+            document.getElementById('app-menu-btn').classList.toggle('hidden', view !== 'app');
 
             if(view === 'app' && currentUser) {
                 document.getElementById('dashboard-title').innerText = currentUser.shop_name;
@@ -256,6 +298,52 @@
         function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
         function openForgotModal() { closeAuthModal(); document.getElementById('forgot-modal').classList.remove('hidden'); }
         function closeForgotModal() { document.getElementById('forgot-modal').classList.add('hidden'); }
+
+        function openProfileModal() {
+            if(!currentUser) return;
+            document.getElementById('profile-shopname').value = currentUser.shop_name;
+            document.getElementById('profile-email').value = currentUser.email;
+            document.getElementById('profile-phone').value = currentUser.phone;
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+        function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
+
+        function handleProfileUpdate(event) {
+            event.preventDefault();
+            const newName = document.getElementById('profile-shopname').value.trim();
+            const newEmail = document.getElementById('profile-email').value.trim();
+            const newPhone = document.getElementById('profile-phone').value.trim();
+
+            let shops = JSON.parse(localStorage.getItem('msg_shops') || '[]');
+            const oldPhone = currentUser.phone;
+
+            // Update shop in master list
+            shops = shops.map(s => {
+                if(s.phone === oldPhone || s.email === currentUser.email) {
+                    return { ...s, shop_name: newName, email: newEmail, phone: newPhone };
+                }
+                return s;
+            });
+            localStorage.setItem('msg_shops', JSON.stringify(shops));
+
+            // Update entries mapping if phone changed
+            let allEntries = JSON.parse(localStorage.getItem('msg_entries') || '{}');
+            if(oldPhone !== newPhone && allEntries[oldPhone]) {
+                allEntries[newPhone] = allEntries[oldPhone];
+                delete allEntries[oldPhone];
+                localStorage.setItem('msg_entries', JSON.stringify(allEntries));
+            }
+
+            currentUser.shop_name = newName;
+            currentUser.email = newEmail;
+            currentUser.phone = newPhone;
+            localStorage.setItem('msg_user', JSON.stringify(currentUser));
+
+            closeProfileModal();
+            switchView('app');
+            loadEntries();
+            alert('Profile updated successfully!');
+        }
 
         function handleAuthSubmit(event) {
             event.preventDefault();
@@ -379,7 +467,7 @@
                         <div class="text-xs text-slate-400">+237 ${item.phone}</div>
                         <div>
                             <span class="inline-block text-[11px] px-2.5 py-0.5 rounded-full border ${item.type === 'they_owe_me' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}">
-                                ${item.type === 'they_owe_me' ? 'Customer Owes' : 'You Owe'}
+                                ${item.type === 'they_owe_me' ? 'Customer Owes' : 'I Owe Customer'}
                             </span>
                         </div>
                     </div>
