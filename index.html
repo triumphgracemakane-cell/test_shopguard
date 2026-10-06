@@ -21,7 +21,6 @@
                 <span class="text-xl font-bold text-navy tracking-tight">MyShop<span class="text-emerald-600">Guard</span></span>
             </div>
             
-            <!-- Links shown only on landing view -->
             <div id="nav-links" class="hidden md:flex items-center space-x-8 font-semibold text-slate-600 text-sm">
                 <a href="#about" class="hover:text-navy transition">About Us</a>
                 <a href="#services" class="hover:text-navy transition">Our Services</a>
@@ -74,13 +73,13 @@
     <div id="forgot-modal" class="fixed inset-0 z-50 bg-slate-950/50 hidden flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
             <h3 class="text-2xl font-bold text-navy mb-2">Recover Your PIN</h3>
-            <p class="text-slate-500 text-sm mb-6">Enter your email to generate a new PIN.</p>
+            <p class="text-slate-500 text-sm mb-6">Enter your email to retrieve your PIN.</p>
             <form onsubmit="handleForgotSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Email Address</label>
                     <input type="email" id="forgot-email" required placeholder="grace@example.com" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
                 </div>
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-md">Generate New PIN</button>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-md">Get My PIN</button>
             </form>
             <button onclick="closeForgotModal()" class="absolute top-4 right-4 text-slate-400 font-bold p-2">✕</button>
         </div>
@@ -148,7 +147,7 @@
             </div>
         </div>
 
-        <!-- LANDING VIEW WITH CENTERED HERO CONTENT -->
+        <!-- LANDING VIEW -->
         <div id="landing-view">
             <div class="relative bg-slate-900 text-white py-36 px-6 overflow-hidden flex items-center justify-center text-center">
                 <div class="absolute inset-0 opacity-40 bg-cover bg-center" style="background-image: url('background.jpg');"></div>
@@ -168,7 +167,7 @@
                     <div>
                         <h2 class="text-3xl font-bold text-navy mb-6">About Us</h2>
                         <p class="text-slate-600 leading-relaxed mb-4">MyShopGuard was built to help shop owners keep accurate records of credit sales and debts without losing pages or getting confused.</p>
-                        <p class="text-slate-600 leading-relaxed">Everything is stored safely on your computer with a personal PIN so your business records remain completely private.</p>
+                        <p class="text-slate-600 leading-relaxed">Everything is stored safely on your device with a personal PIN so your business records remain completely private.</p>
                     </div>
                     <div class="bg-slate-50 border border-slate-200 p-8 rounded-3xl shadow-sm">
                         <h3 class="text-lg font-bold text-navy mb-4">Why Shop Owners Use It</h3>
@@ -202,7 +201,7 @@
                         <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                             <div class="w-10 h-10 bg-amber-500 text-white rounded-xl flex items-center justify-center font-bold text-sm mb-6">3</div>
                             <h3 class="font-bold text-base text-navy mb-2">PIN Security</h3>
-                            <p class="text-slate-600 text-sm">Keep your shop records safe and recover your PIN easily using your email.</p>
+                            <p class="text-slate-600 text-sm">Keep your shop records safe and recover your PIN using your email.</p>
                         </div>
                     </div>
                 </div>
@@ -225,7 +224,6 @@
         function switchView(view) {
             document.getElementById('landing-view').classList.toggle('hidden', view !== 'landing');
             document.getElementById('app-view').classList.toggle('hidden', view !== 'app');
-            // Hide header nav links when inside the app dashboard
             document.getElementById('nav-links').classList.toggle('hidden', view !== 'landing');
 
             if(view === 'app' && currentUser) {
@@ -249,51 +247,54 @@
         function openForgotModal() { closeAuthModal(); document.getElementById('forgot-modal').classList.remove('hidden'); }
         function closeForgotModal() { document.getElementById('forgot-modal').classList.add('hidden'); }
 
-        async function handleAuthSubmit(event) {
+        function handleAuthSubmit(event) {
             event.preventDefault();
             const phone = document.getElementById('auth-phone').value.trim();
             const pin = document.getElementById('auth-pin').value.trim();
             const shop_name = document.getElementById('auth-shopname').value.trim();
             const email = document.getElementById('auth-email').value.trim();
 
-            const endpoint = currentMode === 'register' ? '/api/shops/register' : '/api/shops/signin';
-            const payload = currentMode === 'register' ? { shop_name, email, phone, pin } : { phone, pin };
+            let shops = JSON.parse(localStorage.getItem('msg_shops') || '[]');
 
-            const res = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-
-            if (!res.ok) {
-                alert(data.error || 'Operation failed.');
-                return;
+            if (currentMode === 'register') {
+                const existing = shops.find(s => s.phone === phone);
+                if (existing) {
+                    alert('Phone number already registered.');
+                    return;
+                }
+                const newShop = { shop_name, email, phone, pin };
+                shops.push(newShop);
+                localStorage.setItem('msg_shops', JSON.stringify(shops));
+                currentUser = newShop;
+            } else {
+                const found = shops.find(s => s.phone === phone && s.pin === pin);
+                if (!found) {
+                    alert('Incorrect phone number or PIN.');
+                    return;
+                }
+                currentUser = found;
             }
 
-            currentUser = data.shop;
             localStorage.setItem('msg_user', JSON.stringify(currentUser));
             closeAuthModal();
             switchView('app');
             loadEntries();
         }
 
-        async function handleForgotSubmit(event) {
+        function handleForgotSubmit(event) {
             event.preventDefault();
             const email = document.getElementById('forgot-email').value.trim();
-            const res = await fetch('/api/shops/recover', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                alert(data.message);
-                closeForgotModal();
-                openAuthModal('signin');
-            } else {
-                alert(data.error || 'Recovery failed.');
+            let shops = JSON.parse(localStorage.getItem('msg_shops') || '[]');
+            const found = shops.find(s => s.email === email);
+
+            if (!found) {
+                alert('Email not found in records.');
+                return;
             }
+
+            alert(`Recovery successful! Your 4-digit PIN is: ${found.pin}`);
+            closeForgotModal();
+            openAuthModal('signin');
         }
 
         function handleLogout() {
@@ -302,39 +303,38 @@
             switchView('landing');
         }
 
-        async function loadEntries() {
-            const res = await fetch(`/api/entries/${currentUser.phone}`);
-            shopEntries = await res.json();
+        function loadEntries() {
+            let allEntries = JSON.parse(localStorage.getItem('msg_entries') || '{}');
+            shopEntries = allEntries[currentUser.phone] || [];
             renderTable();
         }
 
-        async function addEntry(event) {
+        function saveEntriesToStorage() {
+            let allEntries = JSON.parse(localStorage.getItem('msg_entries') || '{}');
+            allEntries[currentUser.phone] = shopEntries;
+            localStorage.setItem('msg_entries', JSON.stringify(allEntries));
+        }
+
+        function addEntry(event) {
             event.preventDefault();
             const newEntry = {
-                shop_phone: currentUser.phone,
+                id: Date.now().toString(),
                 name: document.getElementById('entry-name').value.trim(),
                 phone: document.getElementById('entry-whatsapp').value.trim(),
                 amount: parseFloat(document.getElementById('entry-amount').value),
                 type: document.getElementById('entry-type').value
             };
 
-            const res = await fetch('/api/entries', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newEntry)
-            });
-
-            if (res.ok) {
-                document.getElementById('ledger-form').reset();
-                loadEntries();
-            } else {
-                alert('Failed to save record.');
-            }
+            shopEntries.push(newEntry);
+            saveEntriesToStorage();
+            document.getElementById('ledger-form').reset();
+            loadEntries();
         }
 
-        async function markPaid(id) {
-            const res = await fetch(`/api/entries/${id}`, { method: 'DELETE' });
-            if (res.ok) loadEntries();
+        function markPaid(id) {
+            shopEntries = shopEntries.filter(i => i.id !== id);
+            saveEntriesToStorage();
+            loadEntries();
         }
 
         function sendWhatsAppReminder(name, phone, amount, type) {
