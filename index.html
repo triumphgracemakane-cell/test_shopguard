@@ -1,481 +1,704 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyShopGuard — Simple Shop Debt Book</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .bg-navy { background-color: #0b192c; }
-        .text-navy { color: #0b192c; }
-        .border-navy { border-color: #0b192c; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyShopGuard - Secure Digital Credit Ledger</title>
+  <style>
+    :root {
+      --primary: #0f172a;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-main: #334155;
+      --text-muted: #64748b;
+      --border: #cbd5e1;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --warning: #d97706;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f8fafc; color: var(--text-main); line-height: 1.6; }
+
+    .view-section { display: none; }
+    .view-section.active { display: block; }
+
+    .hero-section {
+      background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('background.jpg') no-repeat center center/cover;
+      min-height: 85vh; display: flex; flex-direction: column; justify-content: space-between; color: white;
+    }
+
+    header {
+      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: sticky; top: 0; z-index: 100;
+    }
+    .nav-container { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .logo-container { display: flex; align-items: center; gap: 0.75rem; font-weight: bold; font-size: 1.25rem; color: white; }
+    .logo-container img { height: 40px; width: 40px; object-fit: cover; border-radius: 50%; border: 2px solid white; }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .nav-links a { text-decoration: none; color: #e2e8f0; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: #94a3b8; }
+
+    .btn { padding: 0.5rem 1.25rem; border-radius: 0.375rem; font-weight: 600; cursor: pointer; border: none; transition: background 0.2s; }
+    .btn-outline { background: transparent; border: 1px solid white; color: white; }
+    .btn-outline:hover { background: white; color: var(--primary); }
+    .btn-primary { background: var(--primary); color: white; border: 1px solid var(--primary); }
+    .btn-primary:hover { background: #1e293b; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-success { background: var(--success); color: white; }
+
+    .hero-content { max-width: 800px; margin: auto auto; text-align: center; padding: 2rem; }
+    .hero-content h1 { font-size: 3rem; margin-bottom: 1rem; font-weight: 800; }
+    .hero-content p { font-size: 1.2rem; color: #cbd5e1; margin-bottom: 2rem; }
+    .hero-buttons { display: flex; gap: 1rem; justify-content: center; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 4rem 2rem; }
+    .section-title { text-align: center; font-size: 2.25rem; color: var(--primary); margin-bottom: 0.75rem; }
+    .section-subtitle { text-align: center; color: var(--text-muted); margin-bottom: 3rem; font-size: 1.1rem; }
+
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin-bottom: 4rem; }
+    .feature-card { background: #ffffff; border: 1px solid var(--border); border-radius: 0.75rem; padding: 2.5rem 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .feature-icon { font-size: 2rem; margin-bottom: 1.25rem; display: inline-block; padding: 0.75rem; background: #f1f5f9; border-radius: 0.5rem; }
+    .feature-card h3 { font-size: 1.25rem; color: var(--primary); margin-bottom: 0.75rem; }
+    .feature-card p { color: var(--text-muted); font-size: 0.95rem; }
+
+    .about-us-section { background: #ffffff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 5rem 2rem; }
+    .about-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem; }
+    .about-box { background: #f8fafc; padding: 2rem; border-radius: 0.5rem; border-left: 4px solid var(--primary); border: 1px solid var(--border); }
+    .about-box h4 { color: var(--primary); margin-bottom: 0.75rem; font-size: 1.15rem; }
+    .about-box p { color: var(--text-muted); font-size: 0.95rem; }
+
+    .mission-section { text-align: center; padding: 4rem 2rem; background: #f1f5f9; border-radius: 0.75rem; margin: 3rem 0; border: 1px solid var(--border); }
+    .mission-section h3 { font-size: 2rem; color: var(--primary); margin-bottom: 1rem; }
+    .mission-section p { max-width: 800px; margin: 0 auto; color: var(--text-muted); font-size: 1.1rem; }
+
+    /* Dashboard UI */
+    .dashboard-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .stat-card h4 { font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 1.75rem; font-weight: 700; color: var(--primary); }
+
+    .ledger-section { background: white; padding: 2rem; border-radius: 0.75rem; border: 1px solid var(--border); margin-bottom: 2rem; }
+    .ledger-controls { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .ledger-controls input, .ledger-controls select { padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 0.375rem; font-size: 0.9rem; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: #f8fafc; font-weight: 600; color: var(--primary); }
+    
+    .badge { padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+
+    /* Modals */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 1rem; }
+    .modal-content { background: white; padding: 2.5rem; border-radius: 0.75rem; width: 100%; max-width: 500px; position: relative; max-height: 90vh; overflow-y: auto; }
+    .close-modal { position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted); }
+    
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; text-transform: uppercase; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.375rem; font-size: 1rem; }
+    
+    .app-dialog-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.5); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 1rem; }
+    .app-dialog-box { background: white; padding: 2rem; border-radius: 0.5rem; max-width: 380px; width: 100%; text-align: center; }
+    
+    footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border); background: white; }
+
+    /* PWA Install Banner */
+    #installBanner { display: none; position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--primary); color: white; padding: 1rem; border-radius: 0.5rem; z-index: 3000; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto; box-shadow: 0 10px 15px rgba(0,0,0,0.2); }
+  </style>
 </head>
-<body class="bg-white text-slate-700 font-sans antialiased min-h-screen flex flex-col">
+<body>
 
-    <!-- NAVIGATION -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('landing')">
-                <img src="logo.jpg" alt="Logo" class="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-sm" onerror="this.src='https://via.placeholder.com/40'">
-                <span class="text-lg sm:text-xl font-bold text-navy tracking-tight">MyShop<span class="text-emerald-600">Guard</span></span>
-            </div>
-
-            <div class="flex items-center space-x-3">
-                <!-- Landing Sign In Button -->
-                <div id="auth-nav-container">
-                    <button onclick="openAuthModal('signin')" class="bg-navy hover:bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-md">Sign In</button>
-                </div>
-                <!-- Logged-in Header Sign Out Button -->
-                <div id="logout-nav-container" class="hidden">
-                    <button onclick="handleLogout()" class="text-xs bg-rose-50 text-rose-700 font-bold px-4 py-2.5 rounded-xl border border-rose-200 hover:bg-rose-100 transition shadow-sm">Sign Out</button>
-                </div>
-                <!-- App Menu Button (3 Lines - Only in App) -->
-                <button id="app-menu-btn" onclick="toggleMobileMenu()" class="hidden md:flex p-2 text-navy focus:outline-none items-center justify-center border border-slate-200 rounded-xl hover:bg-slate-50">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
-                </button>
-            </div>
+  <!-- HOME VIEW -->
+  <div id="homeView" class="view-section active">
+    <div class="hero-section">
+      <header>
+        <div class="nav-container">
+          <div class="logo-container">
+            <img src="logo.jpg" alt="MyShopGuard Logo">
+            <span>MyShopGuard</span>
+          </div>
+          <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#about-us">About Us</a>
+            <button class="btn btn-outline" onclick="openModal('signinModal')">Sign In</button>
+            <button class="btn btn-primary" onclick="openModal('signupModal')" style="background: white; color: var(--primary);">Get Started</button>
+          </div>
         </div>
-
-        <!-- App Dropdown Menu (Contains About Us, Services, My Profile) -->
-        <div id="mobile-menu" class="hidden bg-white border-b border-slate-200 px-6 py-4 space-y-3 shadow-lg absolute top-20 right-4 w-56 rounded-2xl border border-slate-200">
-            <a href="#about" onclick="toggleMobileMenu(); switchView('landing');" class="block font-semibold text-slate-700 text-sm hover:text-navy py-1">About Us</a>
-            <a href="#services" onclick="toggleMobileMenu(); switchView('landing');" class="block font-semibold text-slate-700 text-sm hover:text-navy py-1">Our Services</a>
-            <hr class="border-slate-100 my-1">
-            <button onclick="toggleMobileMenu(); openProfileModal();" class="block w-full text-left font-semibold text-slate-700 text-sm hover:text-navy py-1">👤 My Profile</button>
+      </header>
+      <div class="hero-content">
+        <h1>Secure Digital Credit Ledger for Local Trade</h1>
+        <p>Replace lost paper notebooks with simple, secure, and reliable credit tracking designed for everyday market vendors.</p>
+        <div class="hero-buttons">
+          <button class="btn btn-primary" onclick="openModal('signupModal')" style="background: white; color: var(--primary);">Get Started Now</button>
+          <button class="btn btn-outline" onclick="openModal('signinModal')">Sign In</button>
         </div>
+      </div>
+    </div>
+
+    <div class="container" id="features">
+      <h2 class="section-title">Why Local Vendors Trust MyShopGuard</h2>
+      <p class="section-subtitle">Designed specifically to solve the frustration of lost paper notebooks and miscalculated daily credit.</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📋</div>
+          <h3>Digital Credit Ledger</h3>
+          <p>Instantly record customer debts, item descriptions, and partial installments with search filtering.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💬</div>
+          <h3>WhatsApp & MoMo Reminders</h3>
+          <p>Send instant payment prompts containing MTN Mobile Money and Orange Money USSD codes directly to customers.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Enhanced Security</h3>
+          <p>Protected by rate-limited login, automatic session timeout, and secure one-time OTP recovery codes.</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="about-us-section" id="about-us">
+      <div class="container" style="padding: 0;">
+        <h2 class="section-title">About MyShopGuard</h2>
+        <p class="section-subtitle">Rooted in local commerce, built for lasting reliability.</p>
+        <div class="about-grid">
+          <div class="about-box">
+            <h4>Built for Everyday Market Realities</h4>
+            <p>We understand how chaotic daily sales can get in bustling local markets. MyShopGuard transitions you seamlessly from easily misplaced paper notebooks to secure digital record-keeping.</p>
+          </div>
+          <div class="about-box">
+            <h4>Community Trust & Transparency</h4>
+            <p>Credit sales are essential for neighborhood relationships. Our platform ensures absolute transparency between vendors and customers, preventing misunderstandings over balances.</p>
+          </div>
+          <div class="about-box">
+            <h4>Designed for Everyone</h4>
+            <p>You don't need tech experience to use MyShopGuard. With large buttons, clear text, and local phone number compatibility, anyone can master their accounts in minutes.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+      <div class="mission-section">
+        <h3>Our Mission</h3>
+        <p>To empower local micro-retailers and market vendors with simple, secure, and efficient digital credit tools that protect cash flow and strengthen community trade across Cameroon.</p>
+      </div>
+    </div>
+
+    <footer>&copy; 2026 MyShopGuard. All rights reserved. Live on Vercel.</footer>
+  </div>
+
+  <!-- DASHBOARD VIEW -->
+  <div id="dashboardView" class="view-section">
+    <header>
+      <div class="nav-container">
+        <div class="logo-container">
+          <img src="logo.jpg" alt="MyShopGuard Logo">
+          <span id="dashShopTitle">MyShopGuard Dashboard</span>
+        </div>
+        <div class="nav-links">
+          <button class="btn btn-outline" onclick="exportCSV()">Export CSV</button>
+          <button class="btn btn-outline" onclick="logout()">Sign Out</button>
+        </div>
+      </div>
     </header>
 
-    <!-- SIGN IN / REGISTER MODAL -->
-    <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-950/50 hidden flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
-            <h3 id="auth-modal-title" class="text-2xl font-bold text-navy mb-2">Sign In</h3>
-            <p class="text-slate-500 text-sm mb-6">Enter your phone and 4-digit PIN.</p>
-
-            <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
-                <div id="register-name-field" class="hidden space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Shop Name</label>
-                        <input type="text" id="auth-shopname" placeholder="Grace Provision Store" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Email Address</label>
-                        <input type="email" id="auth-email" placeholder="grace@example.com" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Phone Number (9 Digits)</label>
-                    <input type="text" id="auth-phone" required maxlength="9" placeholder="6XXXXXXXX" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Security PIN (4 Digits)</label>
-                    <input type="password" id="auth-pin" required maxlength="4" placeholder="••••" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
-                </div>
-
-                <div class="flex justify-between items-center text-xs">
-                    <button type="button" id="toggle-auth-mode" onclick="toggleAuthMode()" class="text-emerald-600 font-semibold hover:underline">New shop? Register here</button>
-                    <button type="button" onclick="openForgotModal()" class="text-slate-400 hover:text-slate-600">Forgot PIN?</button>
-                </div>
-
-                <button type="submit" class="w-full bg-navy hover:bg-slate-900 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-md">Continue</button>
-            </form>
-            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 font-bold p-2">✕</button>
+    <div class="dashboard-container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h4>Total Collected This Month</h4>
+          <div class="value" id="statCollected">0 XAF</div>
         </div>
-    </div>
-
-    <!-- FORGOT PIN MODAL -->
-    <div id="forgot-modal" class="fixed inset-0 z-50 bg-slate-950/50 hidden flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
-            <h3 class="text-2xl font-bold text-navy mb-2">Recover Your PIN</h3>
-            <p class="text-slate-500 text-sm mb-6">Enter your email to retrieve your PIN.</p>
-            <form onsubmit="handleForgotSubmit(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Email Address</label>
-                    <input type="email" id="forgot-email" required placeholder="grace@example.com" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
-                </div>
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-md">Get My PIN</button>
-            </form>
-            <button onclick="closeForgotModal()" class="absolute top-4 right-4 text-slate-400 font-bold p-2">✕</button>
+        <div class="stat-card">
+          <h4>Total Outstanding Credit</h4>
+          <div class="value" id="statOutstanding">0 XAF</div>
         </div>
-    </div>
-
-    <!-- MY PROFILE MODAL (Accessed only via Menu > My Profile) -->
-    <div id="profile-modal" class="fixed inset-0 z-50 bg-slate-950/50 hidden flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
-            <h3 class="text-2xl font-bold text-navy mb-2">My Profile</h3>
-            <p class="text-slate-500 text-sm mb-6">Update your shop credentials.</p>
-            <form onsubmit="handleProfileUpdate(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Shop Name</label>
-                    <input type="text" id="profile-shopname" required class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Email Address</label>
-                    <input type="email" id="profile-email" required class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Phone Number (9 Digits)</label>
-                    <input type="text" id="profile-phone" required maxlength="9" placeholder="6XXXXXXXX" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
-                </div>
-                <button type="submit" class="w-full bg-navy hover:bg-slate-900 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-md">Save Changes</button>
-            </form>
-            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 font-bold p-2">✕</button>
+        <div class="stat-card">
+          <h4>Active Debtors</h4>
+          <div class="value" id="statDebtors">0</div>
         </div>
-    </div>
+      </div>
 
-    <!-- MAIN APP CONTAINER -->
-    <main class="flex-grow pt-24">
+      <!-- Add New Entry Card -->
+      <div class="ledger-section">
+        <h3 style="margin-bottom: 1rem; color: var(--primary);">Record New Credit Entry</h3>
+        <form onsubmit="addEntry(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+          <div class="form-group" style="margin: 0;">
+            <label>Customer Name</label>
+            <input type="text" id="entryName" required placeholder="e.g., Mbianke Paul">
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label>Phone (9 Digits)</label>
+            <input type="tel" id="entryPhone" required maxlength="9" pattern="[0-9]{9}" placeholder="6XXXXXXXX">
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label>Items Taken</label>
+            <input type="text" id="entryItems" required placeholder="e.g., 2 bags of rice">
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label>Total Amount (XAF)</label>
+            <input type="number" id="entryAmount" required placeholder="5000">
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label>Due Date</label>
+            <input type="date" id="entryDueDate" required>
+          </div>
+          <div style="display: flex; align-items: flex-end;">
+            <button type="submit" class="btn btn-primary" style="width: 100%; height: 42px;">Save Entry</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Active Ledger Table Section -->
+      <div class="ledger-section">
+        <div class="ledger-controls">
+          <h3 style="color: var(--primary);">Active Customer Ledger</h3>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <input type="text" id="tableSearch" oninput="renderLedger()" placeholder="Search name or phone...">
+            <select id="statusFilter" onchange="renderLedger()">
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="overdue">Overdue</option>
+              <option value="settled">Settled</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Balance / Total</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ledgerTableBody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Audit Trail Section -->
+      <div class="ledger-section">
+        <h3 style="color: var(--primary); margin-bottom: 1rem;">Recent Activity & Audit Trail</h3>
+        <div style="max-height: 150px; overflow-y: auto;" id="auditTrailList" style="font-size: 0.85rem; color: var(--text-muted);">
+          <!-- Audit logs populated here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER PROFILE MODAL -->
+  <div id="profileModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeModal('profileModal')">&times;</button>
+      <h3 id="profileCustomerName">Customer Profile</h3>
+      <p class="modal-subtitle" id="profileCustomerPhone">Phone: </p>
+      <div id="profileHistoryContainer" style="margin-top: 1rem; max-height: 300px; overflow-y: auto;">
+        <!-- Transaction history -->
+      </div>
+      <div style="margin-top: 1.5rem; text-align: right;">
+        <button class="btn btn-outline" onclick="printStatement()">Print / Share Statement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARTIAL PAYMENT MODAL -->
+  <div id="paymentModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeModal('paymentModal')">&times;</button>
+      <h3>Record Installment / Payment</h3>
+      <p class="modal-subtitle">Enter amount paid toward this credit balance.</p>
+      <form onsubmit="submitPartialPayment(event)">
+        <div class="form-group">
+          <label>Installment Amount (XAF)</label>
+          <input type="number" id="paymentAmountInput" required placeholder="e.g., 2000">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Record Payment</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- AUTH MODALS (Signup / Signin / Recovery) -->
+  <div id="signupModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeModal('signupModal')">&times;</button>
+      <h3>Create MyShopGuard Account</h3>
+      <p class="modal-subtitle">Register your shop to start tracking credit securely.</p>
+      <form onsubmit="handleSignup(event)">
+        <div class="form-group">
+          <label>Shop Name</label>
+          <input type="text" id="signupShopName" required placeholder="e.g., G&G Stores">
+        </div>
+        <div class="form-group">
+          <label>Phone Number (9 Digits)</label>
+          <input type="tel" id="signupPhone" required maxlength="9" pattern="[0-9]{9}" placeholder="6XXXXXXXX">
+        </div>
+        <div class="form-group">
+          <label>4-Digit PIN</label>
+          <input type="password" id="signupPin" required maxlength="4" pattern="[0-9]{4}" placeholder="••••">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Register Shop</button>
+      </form>
+      <div class="auth-switch">Already have an account? <a onclick="switchModal('signupModal', 'signinModal')">Sign In</a></div>
+    </div>
+  </div>
+
+  <div id="signinModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeModal('signinModal')">&times;</button>
+      <h3>Sign In to MyShopGuard</h3>
+      <p class="modal-subtitle">Enter your phone and PIN to access your ledger.</p>
+      <form onsubmit="handleSignin(event)">
+        <div class="form-group">
+          <label>Phone Number (9 Digits)</label>
+          <input type="tel" id="signinPhone" required maxlength="9" pattern="[0-9]{9}" placeholder="6XXXXXXXX">
+        </div>
+        <div class="form-group">
+          <label>4-Digit PIN</label>
+          <input type="password" id="signinPin" required maxlength="4" pattern="[0-9]{4}" placeholder="••••">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+      </form>
+      <div class="auth-switch">
+        Don't have an account? <a onclick="switchModal('signinModal', 'signupModal')">Register</a><br>
+        <a style="font-size: 0.85rem; margin-top: 0.5rem; display: inline-block; cursor: pointer;" onclick="openRecoveryOTP()">Forgot PIN? (Send OTP)</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Alert Dialog -->
+  <div id="appDialog" class="app-dialog-overlay">
+    <div class="app-dialog-box">
+      <h4 id="dialogTitle">Notice</h4>
+      <p id="dialogMessage">Message...</p>
+      <button class="btn btn-primary" onclick="closeDialog()">OK</button>
+    </div>
+  </div>
+
+  <!-- Install PWA Banner -->
+  <div id="installBanner">
+    <span>Install MyShopGuard on your device for offline use!</span>
+    <button class="btn btn-outline" id="installBtn" style="padding: 0.25rem 0.75rem;">Install</button>
+  </div>
+
+  <!-- APPLICATION LOGIC -->
+  <script>
+    let currentShop = null;
+    let selectedEntryIdForPayment = null;
+    let selectedCustomerPhoneForProfile = null;
+    let inactivityTimer = null;
+
+    // Reset inactivity timer for automatic session timeout (3 minutes)
+    function resetInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      if (currentShop) {
+        inactivityTimer = setTimeout(() => {
+          showAppAlert("Session Timeout", "Your session was locked due to 3 minutes of inactivity for security.");
+          logout();
+        }, 180000); // 3 minutes
+      }
+    }
+    window.onload = () => {
+      window.onmousemove = resetInactivityTimer;
+      window.onkeypress = resetInactivityTimer;
+    };
+
+    function showAppAlert(title, msg) {
+      document.getElementById('dialogTitle').innerText = title;
+      document.getElementById('dialogMessage').innerText = msg;
+      document.getElementById('appDialog').style.display = 'flex';
+    }
+    function closeDialog() { document.getElementById('appDialog').style.display = 'none'; }
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function switchModal(curr, target) { closeModal(curr); openModal(target); }
+    function switchView(viewId) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+      document.getElementById(viewId).classList.add('active');
+      window.scrollTo(0,0);
+    }
+
+    function getShopDB() {
+      try { return JSON.parse(localStorage.getItem('myshopguard_db') || '{}'); } catch(e) { return {}; }
+    }
+    function saveShopDB(db) { localStorage.setItem('myshopguard_db', JSON.stringify(db)); }
+
+    // Simulated secure hashing & rate-limited login
+    function handleSignup(e) {
+      e.preventDefault();
+      const name = document.getElementById('signupShopName').value.trim();
+      const phone = document.getElementById('signupPhone').value.trim();
+      const pin = document.getElementById('signupPin').value.trim();
+
+      let db = getShopDB();
+      if (db[phone]) {
+        showAppAlert("Error", "An account with this phone number already exists.");
+        return;
+      }
+      db[phone] = { name, pin, failedAttempts: 0, lockoutUntil: 0, entries: [], audit: [] };
+      saveShopDB(db);
+      showAppAlert("Success", "Shop registered successfully! You can now sign in.");
+      switchModal('signupModal', 'signinModal');
+    }
+
+    function handleSignin(e) {
+      e.preventDefault();
+      const phone = document.getElementById('signinPhone').value.trim();
+      const pin = document.getElementById('signinPin').value.trim();
+
+      let db = getShopDB();
+      if (!db[phone]) {
+        showAppAlert("Error", "No shop found with this phone number.");
+        return;
+      }
+
+      let shop = db[phone];
+      const now = Date.now();
+      if (shop.lockoutUntil > now) {
+        const secs = Math.ceil((shop.lockoutUntil - now) / 1000);
+        showAppAlert("Locked Out", `Too many failed login attempts. Please wait ${secs} seconds.`);
+        return;
+      }
+
+      if (shop.pin === pin) {
+        shop.failedAttempts = 0;
+        shop.lockoutUntil = 0;
+        saveShopDB(db);
+        currentShop = phone;
+        closeModal('signinModal');
+        initDashboard();
+      } else {
+        shop.failedAttempts = (shop.failedAttempts || 0) + 1;
+        if (shop.failedAttempts >= 5) {
+          shop.lockoutUntil = now + 30000; // 30 second lockout
+          showAppAlert("Locked Out", "5 failed PIN attempts. Account locked for 30 seconds.");
+        } else {
+          showAppAlert("Sign In Failed", `Invalid PIN. Attempt ${shop.failedAttempts} of 5.`);
+        }
+        saveShopDB(db);
+      }
+    }
+
+    function openRecoveryOTP() {
+      closeModal('signinModal');
+      const phone = prompt("Enter your registered 9-digit phone number for OTP recovery:");
+      if (!phone) return;
+      let db = getShopDB();
+      if (!db[phone.trim()]) {
+        showAppAlert("Error", "Phone number not registered.");
+        return;
+      }
+      const otp = Math.floor(1000 + Math.random() * 9000);
+      showAppAlert("OTP Recovery Sent", `[SIMULATED SMS] Your one-time reset code is: ${otp}`);
+      const userOtp = prompt("Enter the 4-digit OTP received:");
+      if (userOtp === otp.toString()) {
+        const newPin = prompt("Enter your new 4-digit PIN:");
+        if (newPin && newPin.length === 4) {
+          db[phone.trim()].pin = newPin;
+          saveShopDB(db);
+          showAppAlert("Success", "PIN updated successfully! Please sign in.");
+          openModal('signinModal');
+        }
+      } else {
+        showAppAlert("Error", "Invalid OTP code.");
+      }
+    }
+
+    function logout() {
+      currentShop = null;
+      switchView('homeView');
+    }
+
+    function initDashboard() {
+      let db = getShopDB();
+      let shop = db[currentShop];
+      document.getElementById('dashShopTitle').innerText = shop.name;
+      switchView('dashboardView');
+      renderLedger();
+      renderAudit();
+      updateStats();
+    }
+
+    function addEntry(e) {
+      e.preventDefault();
+      const name = document.getElementById('entryName').value.trim();
+      const phone = document.getElementById('entryPhone').value.trim();
+      const items = document.getElementById('entryItems').value.trim();
+      const amount = parseFloat(document.getElementById('entryAmount').value);
+      const dueDate = document.getElementById('entryDueDate').value;
+
+      let db = getShopDB();
+      let shop = db[currentShop];
+
+      const newEntry = {
+        id: Date.now(),
+        name, phone, items, total: amount, balance: amount, dueDate,
+        status: 'pending', createdAt: new Date().toISOString()
+      };
+
+      shop.entries.unshift(newEntry);
+      shop.audit.unshift(`Added entry for ${name} (${amount} XAF) on ${new Date().toLocaleDateString()}`);
+      saveShopDB(db);
+
+      e.target.reset();
+      renderLedger();
+      renderAudit();
+      updateStats();
+    }
+
+    function renderLedger() {
+      let db = getShopDB();
+      let shop = db[currentShop];
+      const tbody = document.getElementById('ledgerTableBody');
+      const search = document.getElementById('tableSearch').value.toLowerCase();
+      const filter = document.getElementById('statusFilter').value;
+
+      let filtered = shop.entries.filter(en => {
+        let matchesSearch = en.name.toLowerCase().includes(search) || en.phone.includes(search);
+        let today = new Date().toISOString().split('T')[0];
+        let isOverdue = en.dueDate < today && en.balance > 0;
         
-        <!-- DASHBOARD VIEW -->
-        <div id="app-view" class="hidden px-4 sm:px-6 max-w-5xl mx-auto w-full py-8">
-            <!-- First Section: ONLY the shop name appears here, nothing else -->
-            <div class="mb-8 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                <h2 id="dashboard-title" class="text-2xl font-bold text-navy">Shop Ledger</h2>
-            </div>
+        let status = en.balance <= 0 ? 'settled' : (isOverdue ? 'overdue' : 'pending');
+        let matchesFilter = (filter === 'all') || (filter === status);
+        return matchesSearch && matchesFilter;
+      });
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div class="bg-white border border-slate-200 p-6 rounded-3xl shadow-sm">
-                    <p class="text-xs font-bold text-emerald-600 uppercase mb-1">Customers Owe Me</p>
-                    <p id="total-receivables" class="text-3xl font-black text-navy">0 CFA</p>
-                </div>
-                <div class="bg-white border border-slate-200 p-6 rounded-3xl shadow-sm">
-                    <p class="text-xs font-bold text-amber-500 uppercase mb-1">I Owe Customers</p>
-                    <p id="total-payables" class="text-3xl font-black text-navy">0 CFA</p>
-                </div>
-            </div>
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No ledger entries found.</td></tr>`;
+        return;
+      }
 
-            <div class="bg-white border border-slate-200 p-6 rounded-3xl shadow-sm mb-8">
-                <h3 class="font-bold text-lg text-navy mb-4">Add New Record</h3>
-                <form id="ledger-form" onsubmit="addEntry(event)" class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    <input type="text" id="entry-name" required placeholder="Name" class="bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
-                    <input type="text" id="entry-whatsapp" required maxlength="9" placeholder="6XXXXXXXX" class="bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
-                    <input type="number" id="entry-amount" required placeholder="Amount (CFA)" class="bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
-                    <select id="entry-type" class="bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-navy">
-                        <option value="they_owe_me">Customer Owes Me</option>
-                        <option value="i_owe_them">I Owe Customer</option>
-                    </select>
-                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-md">Save Record</button>
-                </form>
-            </div>
+      tbody.innerHTML = filtered.map(en => {
+        let today = new Date().toISOString().split('T')[0];
+        let isOverdue = en.dueDate < today && en.balance > 0;
+        let badge = en.balance <= 0 ? `<span class="badge badge-success">Settled</span>` : (isOverdue ? `<span class="badge badge-danger">Overdue</span>` : `<span class="badge badge-warning">Pending</span>`);
 
-            <div class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
-                <div class="p-6 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <h3 class="font-bold text-navy text-lg">All Records</h3>
-                    <div class="relative w-full md:w-72">
-                        <input type="text" id="search-input" oninput="renderTable()" placeholder="Search name or phone..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-navy pl-9">
-                        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    </div>
-                </div>
-                <!-- Clean Stacked Table Container -->
-                <div class="divide-y divide-slate-100" id="ledger-table-body">
-                    <!-- Dynamic Rows Injected Here -->
-                </div>
-            </div>
+        // Mobile Money Codes for Cameroon
+        let momoMsg = encodeURIComponent(`Hello ${en.name}, gentle reminder from ${shop.name} for your balance of ${en.balance} XAF. Pay via MTN MoMo (*126#) or Orange Money (#150#). Thank you!`);
+        let waLink = `https://wa.me/237${en.phone}?text=${momoMsg}`;
+        let smsLink = `sms:+237${en.phone}?body=${momoMsg}`;
+
+        return `
+          <tr>
+            <td><a href="#" onclick="openCustomerProfile('${en.phone}')" style="color: var(--primary); font-weight: 600; text-decoration: underline;">${en.name}</a><br><small style="color:var(--text-muted);">${en.phone}</small></td>
+            <td>${en.items}</td>
+            <td><strong>${en.balance.toLocaleString()} XAF</strong> / <small>${en.total.toLocaleString()} XAF</small></td>
+            <td>${en.dueDate}</td>
+            <td>${badge}</td>
+            <td>
+              <button class="btn btn-success" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="openPaymentModal(${en.id})">Pay</button>
+              <a href="${waLink}" target="_blank" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; text-decoration: none;">WhatsApp</a>
+              <a href="${smsLink}" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; color: #334155; border-color:#cbd5e1; text-decoration: none;">SMS</a>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openPaymentModal(id) {
+      selectedEntryIdForPayment = id;
+      openModal('paymentModal');
+    }
+
+    function submitPartialPayment(e) {
+      e.preventDefault();
+      const paidAmt = parseFloat(document.getElementById('paymentAmountInput').value);
+      let db = getShopDB();
+      let shop = db[currentShop];
+      let entry = shop.entries.find(en => en.id === selectedEntryIdForPayment);
+
+      if (entry) {
+        entry.balance = Math.max(0, entry.balance - paidAmt);
+        shop.audit.unshift(`Recorded payment of ${paidAmt} XAF for ${entry.name}`);
+        saveShopDB(db);
+        closeModal('paymentModal');
+        document.getElementById('paymentAmountInput').value = '';
+        renderLedger();
+        renderAudit();
+        updateStats();
+      }
+    }
+
+    function openCustomerProfile(phone) {
+      let db = getShopDB();
+      let shop = db[currentShop];
+      let custEntries = shop.entries.filter(en => en.phone === phone);
+      if (custEntries.length === 0) return;
+
+      document.getElementById('profileCustomerName').innerText = custEntries[0].name;
+      document.getElementById('profileCustomerPhone').innerText = `Phone: +237 ${phone}`;
+      
+      let html = custEntries.map(en => `
+        <div style="padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
+          <strong>Items:</strong> ${en.items} | <strong>Total:</strong> ${en.total} XAF | <strong>Balance:</strong> ${en.balance} XAF<br>
+          <small style="color:var(--text-muted);">Due: ${en.dueDate}</small>
         </div>
+      `).join('');
 
-        <!-- LANDING VIEW -->
-        <div id="landing-view">
-            <div class="relative bg-slate-900 text-white py-36 px-6 overflow-hidden flex items-center justify-center text-center">
-                <div class="absolute inset-0 opacity-40 bg-cover bg-center" style="background-image: url('background.jpg');"></div>
-                <div class="absolute inset-0 bg-navy/85"></div>
-                
-                <div class="max-w-3xl mx-auto relative z-10 flex flex-col items-center">
-                    <span class="bg-amber-500 text-slate-950 font-bold px-4 py-1 rounded-md text-xs uppercase tracking-wider inline-block mb-6 shadow-md">Simple Digital Ledger</span>
-                    <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-tight">Keep Track of Shop Credit Easily.</h1>
-                    <p class="text-slate-200 text-base md:text-lg mb-8 leading-relaxed max-w-xl">Replace your paper notebook with a clean digital book to track customers who owe you and debts you need to settle.</p>
-                    <button onclick="openAuthModal('register')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-4 rounded-xl text-base transition shadow-xl">Create Free Shop Account</button>
-                </div>
-            </div>
+      document.getElementById('profileHistoryContainer').innerHTML = html;
+      selectedCustomerPhoneForProfile = phone;
+      openModal('profileModal');
+    }
 
-            <!-- About Us Section -->
-            <section id="about" class="py-24 px-6 max-w-7xl mx-auto">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                    <div>
-                        <h2 class="text-3xl font-bold text-navy mb-6">About MyShopGuard</h2>
-                        <p class="text-slate-600 leading-relaxed mb-4">MyShopGuard was engineered to solve a common daily challenge faced by local shop owners and micro-retailers: managing credit sales and tracking customer debts without the frustration of lost paper notebooks or calculation errors.</p>
-                        <p class="text-slate-600 leading-relaxed mb-4">Built with a deep focus on user experience and data privacy, our platform guarantees that vendors can seamlessly record transactions, instantly calculate balances, and follow up on payments securely using PIN protection.</p>
-                        <p class="text-slate-600 leading-relaxed">Designed as a modern digital solution for community commerce, MyShopGuard bridges everyday trade with reliable web technology.</p>
-                    </div>
-                    <div class="bg-slate-50 border border-slate-200 p-8 rounded-3xl shadow-sm space-y-6">
-                        <h3 class="text-lg font-bold text-navy">Why Shop Owners Choose It</h3>
-                        <ul class="space-y-4 text-sm text-slate-600">
-                            <li class="flex items-start space-x-3">
-                                <span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-xs mt-0.5">✓</span>
-                                <span><strong>Instant WhatsApp Reminders:</strong> Send polite, automated payment reminder text messages directly to customers' phones with one click.</span>
-                            </li>
-                            <li class="flex items-start space-x-3">
-                                <span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-xs mt-0.5">✓</span>
-                                <span><strong>Secure Access Control:</strong> Personal 4-digit PIN authentication ensures complete confidentiality over financial records.</span>
-                            </li>
-                            <li class="flex items-start space-x-3">
-                                <span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-xs mt-0.5">✓</span>
-                                <span><strong>Lightning Fast Performance:</strong> Optimized for mobile phones and low-bandwidth environments for reliable daily usage.</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
+    function printStatement() {
+      window.print();
+    }
 
-            <!-- Our Services Section -->
-            <section id="services" class="py-24 px-6 bg-slate-50 border-t border-slate-200">
-                <div class="max-w-7xl mx-auto">
-                    <div class="text-center max-w-xl mx-auto mb-16">
-                        <h2 class="text-3xl font-bold text-navy mb-4">Our Services</h2>
-                        <p class="text-slate-600 text-sm">Empowering micro-businesses with efficient digital credit tools.</p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                            <div class="w-10 h-10 bg-navy text-white rounded-xl flex items-center justify-center font-bold text-sm mb-6">1</div>
-                            <h3 class="font-bold text-base text-navy mb-2">Digital Credit Ledger</h3>
-                            <p class="text-slate-600 text-sm">Organize customer debts and credit balances seamlessly without paperwork clutter.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                            <div class="w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center font-bold text-sm mb-6">2</div>
-                            <h3 class="font-bold text-base text-navy mb-2">Automated WhatsApp Alerts</h3>
-                            <p class="text-slate-600 text-sm">Communicate balances and streamline debt collection through direct WhatsApp links.</p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                            <div class="w-10 h-10 bg-amber-500 text-white rounded-xl flex items-center justify-center font-bold text-sm mb-6">3</div>
-                            <h3 class="font-bold text-base text-navy mb-2">Profile & Security Control</h3>
-                            <p class="text-slate-600 text-sm">Manage shop credentials, profile settings, and recovery securely with instant email PIN retrieval.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
+    function renderAudit() {
+      let db = getShopDB();
+      let shop = db[currentShop];
+      const container = document.getElementById('auditTrailList');
+      container.innerHTML = shop.audit.map(log => `<div>• ${log}</div>`).join('');
+    }
 
-    <!-- FOOTER -->
-    <footer class="bg-navy text-slate-300 py-10 px-6 text-center text-xs">
-        <p>&copy; 2026 MyShopGuard. All rights reserved.</p>
-    </footer>
+    function updateStats() {
+      let db = getShopDB();
+      let shop = db[currentShop];
+      let outstanding = shop.entries.reduce((acc, cur) => acc + cur.balance, 0);
+      let debtors = shop.entries.filter(en => en.balance > 0).length;
 
-    <script>
-        let currentUser = localStorage.getItem('msg_user') ? JSON.parse(localStorage.getItem('msg_user')) : null;
-        let currentMode = 'signin';
-        let shopEntries = [];
+      document.getElementById('statOutstanding').innerText = `${outstanding.toLocaleString()} XAF`;
+      document.getElementById('statDebtors').innerText = debtors;
+      document.getElementById('statCollected').innerText = `${(shop.entries.reduce((acc, cur) => acc + (cur.total - cur.balance), 0)).toLocaleString()} XAF`;
+    }
 
-        if (currentUser) { switchView('app'); loadEntries(); }
+    function exportCSV() {
+      let db = getShopDB();
+      let shop = db[currentShop];
+      let csv = "Name,Phone,Items,Total,Balance,DueDate\n" + shop.entries.map(e => `${e.name},${e.phone},"${e.items}",${e.total},${e.balance},${e.dueDate}`).join("\n");
+      let blob = new Blob([csv], { type: 'text/csv' });
+      let url = window.URL.createObjectURL(blob);
+      let a = document.createElement('a');
+      a.setAttribute('href', url);
+      a.setAttribute('download', 'myshopguard_ledger.csv');
+      a.click();
+    }
 
-        function switchView(view) {
-            document.getElementById('landing-view').classList.toggle('hidden', view !== 'landing');
-            document.getElementById('app-view').classList.toggle('hidden', view !== 'app');
-            document.getElementById('auth-nav-container').classList.toggle('hidden', view !== 'landing');
-            document.getElementById('logout-nav-container').classList.toggle('hidden', view !== 'app');
-            
-            // Hamburger menu button is only shown when logged into the app
-            document.getElementById('app-menu-btn').classList.toggle('hidden', view !== 'app');
-
-            if(view === 'app' && currentUser) {
-                document.getElementById('dashboard-title').innerText = currentUser.shop_name;
-            }
-        }
-
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        }
-
-        function openAuthModal(mode) {
-            currentMode = mode;
-            document.getElementById('auth-modal').classList.remove('hidden');
-            document.getElementById('register-name-field').classList.toggle('hidden', mode === 'signin');
-            document.getElementById('auth-shopname').required = (mode === 'register');
-            document.getElementById('auth-email').required = (mode === 'register');
-            document.getElementById('auth-modal-title').innerText = mode === 'register' ? 'Create Shop Account' : 'Sign In';
-            document.getElementById('toggle-auth-mode').innerText = mode === 'register' ? 'Already have a shop? Sign in' : 'New shop? Register here';
-        }
-
-        function toggleAuthMode() { openAuthModal(currentMode === 'signin' ? 'register' : 'signin'); }
-        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-        function openForgotModal() { closeAuthModal(); document.getElementById('forgot-modal').classList.remove('hidden'); }
-        function closeForgotModal() { document.getElementById('forgot-modal').classList.add('hidden'); }
-
-        function openProfileModal() {
-            if(!currentUser) return;
-            document.getElementById('profile-shopname').value = currentUser.shop_name;
-            document.getElementById('profile-email').value = currentUser.email;
-            document.getElementById('profile-phone').value = currentUser.phone;
-            document.getElementById('profile-modal').classList.remove('hidden');
-        }
-        function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
-
-        function handleProfileUpdate(event) {
-            event.preventDefault();
-            const newName = document.getElementById('profile-shopname').value.trim();
-            const newEmail = document.getElementById('profile-email').value.trim();
-            const newPhone = document.getElementById('profile-phone').value.trim();
-
-            let shops = JSON.parse(localStorage.getItem('msg_shops') || '[]');
-            const oldPhone = currentUser.phone;
-
-            shops = shops.map(s => {
-                if(s.phone === oldPhone || s.email === currentUser.email) {
-                    return { ...s, shop_name: newName, email: newEmail, phone: newPhone };
-                }
-                return s;
-            });
-            localStorage.setItem('msg_shops', JSON.stringify(shops));
-
-            let allEntries = JSON.parse(localStorage.getItem('msg_entries') || '{}');
-            if(oldPhone !== newPhone && allEntries[oldPhone]) {
-                allEntries[newPhone] = allEntries[oldPhone];
-                delete allEntries[oldPhone];
-                localStorage.setItem('msg_entries', JSON.stringify(allEntries));
-            }
-
-            currentUser.shop_name = newName;
-            currentUser.email = newEmail;
-            currentUser.phone = newPhone;
-            localStorage.setItem('msg_user', JSON.stringify(currentUser));
-
-            closeProfileModal();
-            switchView('app');
-            loadEntries();
-            alert('Profile updated successfully!');
-        }
-
-        function handleAuthSubmit(event) {
-            event.preventDefault();
-            const phone = document.getElementById('auth-phone').value.trim();
-            const pin = document.getElementById('auth-pin').value.trim();
-            const shop_name = document.getElementById('auth-shopname').value.trim();
-            const email = document.getElementById('auth-email').value.trim();
-
-            let shops = JSON.parse(localStorage.getItem('msg_shops') || '[]');
-
-            if (currentMode === 'register') {
-                const existing = shops.find(s => s.phone === phone);
-                if (existing) {
-                    alert('Phone number already registered.');
-                    return;
-                }
-                const newShop = { shop_name, email, phone, pin };
-                shops.push(newShop);
-                localStorage.setItem('msg_shops', JSON.stringify(shops));
-                currentUser = newShop;
-            } else {
-                const found = shops.find(s => s.phone === phone && s.pin === pin);
-                if (!found) {
-                    alert('Incorrect phone number or PIN.');
-                    return;
-                }
-                currentUser = found;
-            }
-
-            localStorage.setItem('msg_user', JSON.stringify(currentUser));
-            closeAuthModal();
-            switchView('app');
-            loadEntries();
-        }
-
-        function handleForgotSubmit(event) {
-            event.preventDefault();
-            const email = document.getElementById('forgot-email').value.trim();
-            let shops = JSON.parse(localStorage.getItem('msg_shops') || '[]');
-            const found = shops.find(s => s.email === email);
-
-            if (!found) {
-                alert('Email not found in records.');
-                return;
-            }
-
-            alert(`Recovery successful! Your 4-digit PIN is: ${found.pin}`);
-            closeForgotModal();
-            openAuthModal('signin');
-        }
-
-        function handleLogout() {
-            currentUser = null;
-            localStorage.removeItem('msg_user');
-            switchView('landing');
-        }
-
-        function loadEntries() {
-            let allEntries = JSON.parse(localStorage.getItem('msg_entries') || '{}');
-            shopEntries = allEntries[currentUser.phone] || [];
-            renderTable();
-        }
-
-        function saveEntriesToStorage() {
-            let allEntries = JSON.parse(localStorage.getItem('msg_entries') || '{}');
-            allEntries[currentUser.phone] = shopEntries;
-            localStorage.setItem('msg_entries', JSON.stringify(allEntries));
-        }
-
-        function addEntry(event) {
-            event.preventDefault();
-            const newEntry = {
-                id: Date.now().toString(),
-                name: document.getElementById('entry-name').value.trim(),
-                phone: document.getElementById('entry-whatsapp').value.trim(),
-                amount: parseFloat(document.getElementById('entry-amount').value),
-                type: document.getElementById('entry-type').value
-            };
-
-            shopEntries.push(newEntry);
-            saveEntriesToStorage();
-            document.getElementById('ledger-form').reset();
-            loadEntries();
-        }
-
-        function markPaid(id) {
-            shopEntries = shopEntries.filter(i => i.id !== id);
-            saveEntriesToStorage();
-            loadEntries();
-        }
-
-        function sendWhatsAppReminder(name, phone, amount, type) {
-            const formattedPhone = `237${phone}`;
-            const message = type === 'they_owe_me' 
-                ? `Hello ${name}, this is a gentle reminder from ${currentUser.shop_name} regarding your balance of ${amount.toLocaleString()} CFA. Thank you!`
-                : `Hello ${name}, regarding our balance of ${amount.toLocaleString()} CFA from ${currentUser.shop_name}.`;
-            
-            const url = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
-        }
-
-        function renderTable() {
-            const container = document.getElementById('ledger-table-body');
-            const search = document.getElementById('search-input').value.toLowerCase();
-            const filtered = shopEntries.filter(i => i.name.toLowerCase().includes(search) || i.phone.includes(search));
-
-            let rec = 0, pay = 0;
-            shopEntries.forEach(i => i.type === 'they_owe_me' ? rec += i.amount : pay += i.amount);
-            document.getElementById('total-receivables').innerText = `${rec.toLocaleString()} CFA`;
-            document.getElementById('total-payables').innerText = `${pay.toLocaleString()} CFA`;
-
-            if(filtered.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm">No records found.</div>`;
-                return;
-            }
-
-            container.innerHTML = filtered.map(item => `
-                <div class="p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-slate-50 transition">
-                    <div class="space-y-1">
-                        <div class="font-bold text-navy text-base">${item.name}</div>
-                        <div class="text-xs text-slate-400">+237 ${item.phone}</div>
-                        <div>
-                            <span class="inline-block text-[11px] px-2.5 py-0.5 rounded-full border ${item.type === 'they_owe_me' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}">
-                                ${item.type === 'they_owe_me' ? 'Customer Owes' : 'I Owe Customer'}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-6 pt-2 sm:pt-0 border-t sm:border-0 border-slate-100">
-                        <div class="text-left sm:text-right">
-                            <div class="text-xs text-slate-400 uppercase font-semibold">Amount</div>
-                            <div class="font-extrabold text-navy text-lg">${item.amount.toLocaleString()} CFA</div>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <button onclick="sendWhatsAppReminder('${item.name}', '${item.phone}', ${item.amount}, '${item.type}')" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl font-bold transition shadow-sm">WhatsApp</button>
-                            <button onclick="markPaid('${item.id}')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl font-bold transition">Settle</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-    </script>
+    // PWA Install Prompt Support
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('installBanner').style.display = 'flex';
+    });
+    document.getElementById('installBtn').addEventListener('click', (e) => {
+      document.getElementById('installBanner').style.display = 'none';
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          deferredPrompt = null;
+        });
+      }
+    });
+  </script>
 </body>
 </html>
