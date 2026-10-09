@@ -7,6 +7,7 @@
   <style>
     :root {
       --primary: #0f172a;
+      --primary-hover: #1e293b;
       --card-bg: rgba(255, 255, 255, 0.95);
       --text-main: #334155;
       --text-muted: #64748b;
@@ -23,12 +24,12 @@
     .view-section.active { display: block; }
 
     .hero-section {
-      background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('background.jpg') no-repeat center center/cover;
+      background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('background.jpg') no-repeat center center/cover;
       min-height: 85vh; display: flex; flex-direction: column; justify-content: space-between; color: white;
     }
 
     header {
-      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px);
+      background: var(--primary);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: sticky; top: 0; z-index: 100;
     }
     .nav-container { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
@@ -42,7 +43,7 @@
     .btn-outline { background: transparent; border: 1px solid white; color: white; }
     .btn-outline:hover { background: white; color: var(--primary); }
     .btn-primary { background: var(--primary); color: white; border: 1px solid var(--primary); }
-    .btn-primary:hover { background: #1e293b; }
+    .btn-primary:hover { background: var(--primary-hover); }
     .btn-danger { background: var(--danger); color: white; }
     .btn-success { background: var(--success); color: white; }
 
@@ -92,7 +93,7 @@
     .badge-warning { background: #fef3c7; color: #92400e; }
 
     /* Modals */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 1rem; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 1rem; }
     .modal-content { background: white; padding: 2.5rem; border-radius: 0.75rem; width: 100%; max-width: 500px; position: relative; max-height: 90vh; overflow-y: auto; }
     .close-modal { position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted); }
     
@@ -100,12 +101,11 @@
     .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; text-transform: uppercase; }
     .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.375rem; font-size: 1rem; }
     
-    .app-dialog-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.5); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 1rem; }
+    .app-dialog-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 1rem; }
     .app-dialog-box { background: white; padding: 2rem; border-radius: 0.5rem; max-width: 380px; width: 100%; text-align: center; }
     
     footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border); background: white; }
 
-    /* PWA Install Banner */
     #installBanner { display: none; position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--primary); color: white; padding: 1rem; border-radius: 0.5rem; z-index: 3000; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto; box-shadow: 0 10px 15px rgba(0,0,0,0.2); }
   </style>
 </head>
@@ -222,7 +222,6 @@
         </div>
       </div>
 
-      <!-- Add New Entry Card -->
       <div class="ledger-section">
         <h3 style="margin-bottom: 1rem; color: var(--primary);">Record New Credit Entry</h3>
         <form onsubmit="addEntry(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
@@ -252,7 +251,6 @@
         </form>
       </div>
 
-      <!-- Active Ledger Table Section -->
       <div class="ledger-section">
         <div class="ledger-controls">
           <h3 style="color: var(--primary);">Active Customer Ledger</h3>
@@ -279,19 +277,14 @@
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody id="ledgerTableBody">
-              <!-- Populated dynamically -->
-            </tbody>
+            <tbody id="ledgerTableBody"></tbody>
           </table>
         </div>
       </div>
 
-      <!-- Audit Trail Section -->
       <div class="ledger-section">
         <h3 style="color: var(--primary); margin-bottom: 1rem;">Recent Activity & Audit Trail</h3>
-        <div style="max-height: 150px; overflow-y: auto;" id="auditTrailList" style="font-size: 0.85rem; color: var(--text-muted);">
-          <!-- Audit logs populated here -->
-        </div>
+        <div style="max-height: 150px; overflow-y: auto; font-size: 0.85rem; color: var(--text-muted);" id="auditTrailList"></div>
       </div>
     </div>
   </div>
@@ -302,11 +295,9 @@
       <button class="close-modal" onclick="closeModal('profileModal')">&times;</button>
       <h3 id="profileCustomerName">Customer Profile</h3>
       <p class="modal-subtitle" id="profileCustomerPhone">Phone: </p>
-      <div id="profileHistoryContainer" style="margin-top: 1rem; max-height: 300px; overflow-y: auto;">
-        <!-- Transaction history -->
-      </div>
+      <div id="profileHistoryContainer" style="margin-top: 1rem; max-height: 300px; overflow-y: auto;"></div>
       <div style="margin-top: 1.5rem; text-align: right;">
-        <button class="btn btn-outline" onclick="printStatement()">Print / Share Statement</button>
+        <button class="btn btn-outline" style="background: var(--primary);" onclick="printStatement()">Print / Share Statement</button>
       </div>
     </div>
   </div>
@@ -327,7 +318,7 @@
     </div>
   </div>
 
-  <!-- AUTH MODALS (Signup / Signin / Recovery) -->
+  <!-- AUTH MODALS -->
   <div id="signupModal" class="modal-overlay">
     <div class="modal-content">
       <button class="close-modal" onclick="closeModal('signupModal')">&times;</button>
@@ -348,7 +339,7 @@
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%;">Register Shop</button>
       </form>
-      <div class="auth-switch">Already have an account? <a onclick="switchModal('signupModal', 'signinModal')">Sign In</a></div>
+      <div class="auth-switch">Already have an account? <a onclick="switchModal('signupModal', 'signinModal')" style="color: var(--primary);">Sign In</a></div>
     </div>
   </div>
 
@@ -368,9 +359,9 @@
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
       </form>
-      <div class="auth-switch">
-        Don't have an account? <a onclick="switchModal('signinModal', 'signupModal')">Register</a><br>
-        <a style="font-size: 0.85rem; margin-top: 0.5rem; display: inline-block; cursor: pointer;" onclick="openRecoveryOTP()">Forgot PIN? (Send OTP)</a>
+      <div class="auth-switch" style="margin-top: 1rem; text-align: center;">
+        Don't have an account? <a onclick="switchModal('signinModal', 'signupModal')" style="color: var(--primary);">Register</a><br>
+        <a style="font-size: 0.85rem; margin-top: 0.5rem; display: inline-block; cursor: pointer; color: var(--primary);" onclick="openRecoveryOTP()">Forgot PIN? (Send OTP)</a>
       </div>
     </div>
   </div>
@@ -379,32 +370,30 @@
   <div id="appDialog" class="app-dialog-overlay">
     <div class="app-dialog-box">
       <h4 id="dialogTitle">Notice</h4>
-      <p id="dialogMessage">Message...</p>
+      <p id="dialogMessage" style="margin-bottom: 1.5rem; color: var(--text-muted);">Message...</p>
       <button class="btn btn-primary" onclick="closeDialog()">OK</button>
     </div>
   </div>
 
-  <!-- Install PWA Banner -->
   <div id="installBanner">
     <span>Install MyShopGuard on your device for offline use!</span>
     <button class="btn btn-outline" id="installBtn" style="padding: 0.25rem 0.75rem;">Install</button>
   </div>
 
-  <!-- APPLICATION LOGIC -->
+  <!-- SCRIPT LOGIC -->
   <script>
     let currentShop = null;
     let selectedEntryIdForPayment = null;
     let selectedCustomerPhoneForProfile = null;
     let inactivityTimer = null;
 
-    // Reset inactivity timer for automatic session timeout (3 minutes)
     function resetInactivityTimer() {
       clearTimeout(inactivityTimer);
       if (currentShop) {
         inactivityTimer = setTimeout(() => {
           showAppAlert("Session Timeout", "Your session was locked due to 3 minutes of inactivity for security.");
           logout();
-        }, 180000); // 3 minutes
+        }, 180000);
       }
     }
     window.onload = () => {
@@ -432,7 +421,6 @@
     }
     function saveShopDB(db) { localStorage.setItem('myshopguard_db', JSON.stringify(db)); }
 
-    // Simulated secure hashing & rate-limited login
     function handleSignup(e) {
       e.preventDefault();
       const name = document.getElementById('signupShopName').value.trim();
@@ -479,7 +467,7 @@
       } else {
         shop.failedAttempts = (shop.failedAttempts || 0) + 1;
         if (shop.failedAttempts >= 5) {
-          shop.lockoutUntil = now + 30000; // 30 second lockout
+          shop.lockoutUntil = now + 30000;
           showAppAlert("Locked Out", "5 failed PIN attempts. Account locked for 30 seconds.");
         } else {
           showAppAlert("Sign In Failed", `Invalid PIN. Attempt ${shop.failedAttempts} of 5.`);
@@ -582,7 +570,6 @@
         let isOverdue = en.dueDate < today && en.balance > 0;
         let badge = en.balance <= 0 ? `<span class="badge badge-success">Settled</span>` : (isOverdue ? `<span class="badge badge-danger">Overdue</span>` : `<span class="badge badge-warning">Pending</span>`);
 
-        // Mobile Money Codes for Cameroon
         let momoMsg = encodeURIComponent(`Hello ${en.name}, gentle reminder from ${shop.name} for your balance of ${en.balance} XAF. Pay via MTN MoMo (*126#) or Orange Money (#150#). Thank you!`);
         let waLink = `https://wa.me/237${en.phone}?text=${momoMsg}`;
         let smsLink = `sms:+237${en.phone}?body=${momoMsg}`;
@@ -597,7 +584,7 @@
             <td>
               <button class="btn btn-success" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="openPaymentModal(${en.id})">Pay</button>
               <a href="${waLink}" target="_blank" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; text-decoration: none;">WhatsApp</a>
-              <a href="${smsLink}" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; color: #334155; border-color:#cbd5e1; text-decoration: none;">SMS</a>
+              <a href="${smsLink}" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background:#f1f5f9; color: #334155; border-color:#cbd5e1; text-decoration: none;">SMS</a>
             </td>
           </tr>
         `;
@@ -649,9 +636,7 @@
       openModal('profileModal');
     }
 
-    function printStatement() {
-      window.print();
-    }
+    function printStatement() { window.print(); }
 
     function renderAudit() {
       let db = getShopDB();
@@ -683,7 +668,6 @@
       a.click();
     }
 
-    // PWA Install Prompt Support
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -694,9 +678,7 @@
       document.getElementById('installBanner').style.display = 'none';
       if (deferredPrompt) {
         deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          deferredPrompt = null;
-        });
+        deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
       }
     });
   </script>
