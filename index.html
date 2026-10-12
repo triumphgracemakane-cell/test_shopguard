@@ -22,7 +22,7 @@
     .view-section { display: none; }
     .view-section.active { display: block; }
 
-    /* Plain, clear hero background with NO color overlay */
+    /* Plain, clear hero background with NO color overlay or blur */
     .hero-section {
       background: url('background.jpg') no-repeat center center/cover;
       min-height: 85vh; display: flex; flex-direction: column; justify-content: space-between; color: white;
@@ -48,9 +48,26 @@
     .btn-success { background: var(--success); color: white; }
     .btn-disabled { background: #cbd5e1; color: #64748b; cursor: not-allowed; }
 
-    .hero-content { max-width: 800px; margin: auto auto; text-align: center; padding: 2rem; background: rgba(15, 23, 42, 0.65); border-radius: 1rem; backdrop-filter: blur(4px); }
-    .hero-content h1 { font-size: 3rem; margin-bottom: 1rem; font-weight: 800; }
-    .hero-content p { font-size: 1.2rem; color: #cbd5e1; margin-bottom: 2rem; }
+    /* Completely transparent hero content - clear image underneath */
+    .hero-content {
+      max-width: 800px;
+      margin: auto auto;
+      text-align: center;
+      padding: 2rem;
+      background: transparent;
+    }
+    .hero-content h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      font-weight: 800;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+    }
+    .hero-content p {
+      font-size: 1.2rem;
+      color: #ffffff;
+      margin-bottom: 2rem;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+    }
     .hero-buttons { display: flex; gap: 1rem; justify-content: center; }
 
     .container { max-width: 1200px; margin: 0 auto; padding: 4rem 2rem; }
@@ -606,7 +623,6 @@
         let waLink = `https://wa.me/237${en.phone}?text=${momoMsg}`;
         let smsLink = `sms:+237${en.phone}?body=${momoMsg}`;
 
-        // Disable Paid button if balance is 0 or settled
         let isSettled = en.balance <= 0;
         let paidButton = isSettled 
           ? `<button class="btn btn-disabled" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" disabled>Paid</button>`
@@ -645,7 +661,6 @@
       openModal('paymentModal');
     }
 
-    // Prevents overpayment errors
     function submitPartialPayment(e) {
       e.preventDefault();
       const paidAmt = parseFloat(document.getElementById('paymentAmountInput').value);
