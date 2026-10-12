@@ -8,7 +8,6 @@
     :root {
       --primary: #0f172a;
       --primary-hover: #1e293b;
-      --card-bg: rgba(255, 255, 255, 0.95);
       --text-main: #334155;
       --text-muted: #64748b;
       --border: #cbd5e1;
@@ -23,8 +22,9 @@
     .view-section { display: none; }
     .view-section.active { display: block; }
 
+    /* Plain, clear hero background with NO color overlay */
     .hero-section {
-      background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('background.jpg') no-repeat center center/cover;
+      background: url('background.jpg') no-repeat center center/cover;
       min-height: 85vh; display: flex; flex-direction: column; justify-content: space-between; color: white;
     }
 
@@ -35,7 +35,7 @@
     .nav-container { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
     .logo-container { display: flex; align-items: center; gap: 0.75rem; font-weight: bold; font-size: 1.25rem; color: white; }
     .logo-container img { height: 40px; width: 40px; object-fit: cover; border-radius: 50%; border: 2px solid white; }
-    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .nav-links { display: flex; gap: 1rem; align-items: center; }
     .nav-links a { text-decoration: none; color: #e2e8f0; font-weight: 500; transition: color 0.2s; }
     .nav-links a:hover { color: #94a3b8; }
 
@@ -46,8 +46,9 @@
     .btn-primary:hover { background: var(--primary-hover); }
     .btn-danger { background: var(--danger); color: white; }
     .btn-success { background: var(--success); color: white; }
+    .btn-disabled { background: #cbd5e1; color: #64748b; cursor: not-allowed; }
 
-    .hero-content { max-width: 800px; margin: auto auto; text-align: center; padding: 2rem; }
+    .hero-content { max-width: 800px; margin: auto auto; text-align: center; padding: 2rem; background: rgba(15, 23, 42, 0.65); border-radius: 1rem; backdrop-filter: blur(4px); }
     .hero-content h1 { font-size: 3rem; margin-bottom: 1rem; font-weight: 800; }
     .hero-content p { font-size: 1.2rem; color: #cbd5e1; margin-bottom: 2rem; }
     .hero-buttons { display: flex; gap: 1rem; justify-content: center; }
@@ -74,10 +75,10 @@
 
     /* Dashboard UI */
     .dashboard-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
     .stat-card { background: white; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
     .stat-card h4 { font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; }
-    .stat-card .value { font-size: 1.75rem; font-weight: 700; color: var(--primary); }
+    .stat-card .value { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
 
     .ledger-section { background: white; padding: 2rem; border-radius: 0.75rem; border: 1px solid var(--border); margin-bottom: 2rem; }
     .ledger-controls { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
@@ -91,6 +92,7 @@
     .badge-danger { background: #fee2e2; color: #991b1b; }
     .badge-success { background: #dcfce7; color: #166534; }
     .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-blue { background: #e0f2fe; color: #075985; }
 
     /* Modals */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 1rem; }
@@ -105,8 +107,6 @@
     .app-dialog-box { background: white; padding: 2rem; border-radius: 0.5rem; max-width: 380px; width: 100%; text-align: center; }
     
     footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border); background: white; }
-
-    #installBanner { display: none; position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--primary); color: white; padding: 1rem; border-radius: 0.5rem; z-index: 3000; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto; box-shadow: 0 10px 15px rgba(0,0,0,0.2); }
   </style>
 </head>
 <body>
@@ -123,6 +123,7 @@
           <div class="nav-links">
             <a href="#features">Features</a>
             <a href="#about-us">About Us</a>
+            <button class="btn btn-outline" id="installBtnHeader" onclick="promptInstall()">Add to Home Screen</button>
             <button class="btn btn-outline" onclick="openModal('signinModal')">Sign In</button>
             <button class="btn btn-primary" onclick="openModal('signupModal')" style="background: white; color: var(--primary);">Get Started</button>
           </div>
@@ -145,7 +146,7 @@
         <div class="feature-card">
           <div class="feature-icon">📋</div>
           <h3>Digital Credit Ledger</h3>
-          <p>Instantly record customer debts, item descriptions, and partial installments with search filtering.</p>
+          <p>Instantly record customer debts ("Customers Owe Me") and change owed to customers ("I Owe Customer").</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">💬</div>
@@ -200,6 +201,7 @@
           <span id="dashShopTitle">MyShopGuard Dashboard</span>
         </div>
         <div class="nav-links">
+          <button class="btn btn-outline" onclick="promptInstall()">Add to Home Screen</button>
           <button class="btn btn-outline" onclick="exportCSV()">Export CSV</button>
           <button class="btn btn-outline" onclick="logout()">Sign Out</button>
         </div>
@@ -213,8 +215,12 @@
           <div class="value" id="statCollected">0 XAF</div>
         </div>
         <div class="stat-card">
-          <h4>Total Outstanding Credit</h4>
+          <h4>Customers Owe Me</h4>
           <div class="value" id="statOutstanding">0 XAF</div>
+        </div>
+        <div class="stat-card">
+          <h4>I Owe Customers (Change)</h4>
+          <div class="value" id="statIOwe" style="color: var(--danger);">0 XAF</div>
         </div>
         <div class="stat-card">
           <h4>Active Debtors</h4>
@@ -222,9 +228,10 @@
         </div>
       </div>
 
+      <!-- Record New Credit Form -->
       <div class="ledger-section">
         <h3 style="margin-bottom: 1rem; color: var(--primary);">Record New Credit Entry</h3>
-        <form onsubmit="addEntry(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <form onsubmit="addEntry(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
           <div class="form-group" style="margin: 0;">
             <label>Customer Name</label>
             <input type="text" id="entryName" required placeholder="e.g., Mbianke Paul">
@@ -234,12 +241,19 @@
             <input type="tel" id="entryPhone" required maxlength="9" pattern="[0-9]{9}" placeholder="6XXXXXXXX">
           </div>
           <div class="form-group" style="margin: 0;">
-            <label>Items Taken</label>
-            <input type="text" id="entryItems" required placeholder="e.g., 2 bags of rice">
+            <label>Items / Details</label>
+            <input type="text" id="entryItems" required placeholder="e.g., Indomie / Change balance">
           </div>
           <div class="form-group" style="margin: 0;">
-            <label>Total Amount (XAF)</label>
+            <label>Amount (XAF)</label>
             <input type="number" id="entryAmount" required placeholder="5000">
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label>Transaction Type</label>
+            <select id="entryType" style="height: 42px;">
+              <option value="Customers Owe Me">Customers Owe Me</option>
+              <option value="I Owe Customer">I Owe Customer (Change)</option>
+            </select>
           </div>
           <div class="form-group" style="margin: 0;">
             <label>Due Date</label>
@@ -251,6 +265,7 @@
         </form>
       </div>
 
+      <!-- Active Customer Ledger -->
       <div class="ledger-section">
         <div class="ledger-controls">
           <h3 style="color: var(--primary);">Active Customer Ledger</h3>
@@ -261,6 +276,7 @@
               <option value="pending">Pending</option>
               <option value="overdue">Overdue</option>
               <option value="settled">Settled</option>
+              <option value="iowe">I Owe Customer</option>
             </select>
           </div>
         </div>
@@ -270,7 +286,7 @@
             <thead>
               <tr>
                 <th>Customer</th>
-                <th>Items</th>
+                <th>Items / Type</th>
                 <th>Balance / Total</th>
                 <th>Due Date</th>
                 <th>Status</th>
@@ -306,11 +322,11 @@
   <div id="paymentModal" class="modal-overlay">
     <div class="modal-content">
       <button class="close-modal" onclick="closeModal('paymentModal')">&times;</button>
-      <h3>Record Installment / Payment</h3>
-      <p class="modal-subtitle">Enter amount paid toward this credit balance.</p>
+      <h3>Record Payment / Installment</h3>
+      <p class="modal-subtitle" id="paymentModalSub">Enter amount paid toward this credit balance.</p>
       <form onsubmit="submitPartialPayment(event)">
         <div class="form-group">
-          <label>Installment Amount (XAF)</label>
+          <label>Amount (XAF)</label>
           <input type="number" id="paymentAmountInput" required placeholder="e.g., 2000">
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%;">Record Payment</button>
@@ -375,17 +391,27 @@
     </div>
   </div>
 
-  <div id="installBanner">
-    <span>Install MyShopGuard on your device for offline use!</span>
-    <button class="btn btn-outline" id="installBtn" style="padding: 0.25rem 0.75rem;">Install</button>
-  </div>
-
   <!-- SCRIPT LOGIC -->
   <script>
     let currentShop = null;
     let selectedEntryIdForPayment = null;
     let selectedCustomerPhoneForProfile = null;
     let inactivityTimer = null;
+    let deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    function promptInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+      } else {
+        showAppAlert("Add to Home Screen", "To install, tap your browser menu (3 dots) and select 'Add to Home screen' or 'Install App'.");
+      }
+    }
 
     function resetInactivityTimer() {
       clearTimeout(inactivityTimer);
@@ -522,6 +548,7 @@
       const phone = document.getElementById('entryPhone').value.trim();
       const items = document.getElementById('entryItems').value.trim();
       const amount = parseFloat(document.getElementById('entryAmount').value);
+      const type = document.getElementById('entryType').value;
       const dueDate = document.getElementById('entryDueDate').value;
 
       let db = getShopDB();
@@ -529,12 +556,12 @@
 
       const newEntry = {
         id: Date.now(),
-        name, phone, items, total: amount, balance: amount, dueDate,
+        name, phone, items, type, total: amount, balance: amount, dueDate,
         status: 'pending', createdAt: new Date().toISOString()
       };
 
       shop.entries.unshift(newEntry);
-      shop.audit.unshift(`Added entry for ${name} (${amount} XAF) on ${new Date().toLocaleDateString()}`);
+      shop.audit.unshift(`Added [${type}] entry for ${name} (${amount} XAF) on ${new Date().toLocaleDateString()}`);
       saveShopDB(db);
 
       e.target.reset();
@@ -553,9 +580,9 @@
       let filtered = shop.entries.filter(en => {
         let matchesSearch = en.name.toLowerCase().includes(search) || en.phone.includes(search);
         let today = new Date().toISOString().split('T')[0];
-        let isOverdue = en.dueDate < today && en.balance > 0;
+        let isOverdue = en.dueDate < today && en.balance > 0 && en.type === 'Customers Owe Me';
         
-        let status = en.balance <= 0 ? 'settled' : (isOverdue ? 'overdue' : 'pending');
+        let status = en.balance <= 0 ? 'settled' : (en.type === 'I Owe Customer' ? 'iowe' : (isOverdue ? 'overdue' : 'pending'));
         let matchesFilter = (filter === 'all') || (filter === status);
         return matchesSearch && matchesFilter;
       });
@@ -567,22 +594,33 @@
 
       tbody.innerHTML = filtered.map(en => {
         let today = new Date().toISOString().split('T')[0];
-        let isOverdue = en.dueDate < today && en.balance > 0;
-        let badge = en.balance <= 0 ? `<span class="badge badge-success">Settled</span>` : (isOverdue ? `<span class="badge badge-danger">Overdue</span>` : `<span class="badge badge-warning">Pending</span>`);
+        let isOverdue = en.dueDate < today && en.balance > 0 && en.type === 'Customers Owe Me';
+        
+        let badge = en.balance <= 0 
+          ? `<span class="badge badge-success">Settled</span>` 
+          : (en.type === 'I Owe Customer' 
+            ? `<span class="badge badge-blue">I Owe Customer</span>` 
+            : (isOverdue ? `<span class="badge badge-danger">Overdue</span>` : `<span class="badge badge-warning">Pending</span>`));
 
         let momoMsg = encodeURIComponent(`Hello ${en.name}, gentle reminder from ${shop.name} for your balance of ${en.balance} XAF. Pay via MTN MoMo (*126#) or Orange Money (#150#). Thank you!`);
         let waLink = `https://wa.me/237${en.phone}?text=${momoMsg}`;
         let smsLink = `sms:+237${en.phone}?body=${momoMsg}`;
 
+        // Disable Paid button if balance is 0 or settled
+        let isSettled = en.balance <= 0;
+        let paidButton = isSettled 
+          ? `<button class="btn btn-disabled" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" disabled>Paid</button>`
+          : `<button class="btn btn-success" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="openPaymentModal(${en.id})">Paid</button>`;
+
         return `
           <tr>
             <td><a href="#" onclick="openCustomerProfile('${en.phone}')" style="color: var(--primary); font-weight: 600; text-decoration: underline;">${en.name}</a><br><small style="color:var(--text-muted);">${en.phone}</small></td>
-            <td>${en.items}</td>
+            <td>${en.items}<br><small style="color: var(--text-muted);">${en.type}</small></td>
             <td><strong>${en.balance.toLocaleString()} XAF</strong> / <small>${en.total.toLocaleString()} XAF</small></td>
             <td>${en.dueDate}</td>
             <td>${badge}</td>
             <td>
-              <button class="btn btn-success" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="openPaymentModal(${en.id})">Pay</button>
+              ${paidButton}
               <a href="${waLink}" target="_blank" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; text-decoration: none;">WhatsApp</a>
               <a href="${smsLink}" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background:#f1f5f9; color: #334155; border-color:#cbd5e1; text-decoration: none;">SMS</a>
             </td>
@@ -592,10 +630,22 @@
     }
 
     function openPaymentModal(id) {
+      let db = getShopDB();
+      let shop = db[currentShop];
+      let entry = shop.entries.find(en => en.id === id);
+      
+      if (!entry || entry.balance <= 0) {
+        showAppAlert("Notice", "This entry is already fully settled.");
+        return;
+      }
+      
       selectedEntryIdForPayment = id;
+      document.getElementById('paymentModalSub').innerText = `Maximum allowed payment: ${entry.balance} XAF`;
+      document.getElementById('paymentAmountInput').max = entry.balance;
       openModal('paymentModal');
     }
 
+    // Prevents overpayment errors
     function submitPartialPayment(e) {
       e.preventDefault();
       const paidAmt = parseFloat(document.getElementById('paymentAmountInput').value);
@@ -604,6 +654,11 @@
       let entry = shop.entries.find(en => en.id === selectedEntryIdForPayment);
 
       if (entry) {
+        if (paidAmt > entry.balance) {
+          showAppAlert("Invalid Amount", `Payment cannot exceed the remaining balance of ${entry.balance} XAF.`);
+          return;
+        }
+
         entry.balance = Math.max(0, entry.balance - paidAmt);
         shop.audit.unshift(`Recorded payment of ${paidAmt} XAF for ${entry.name}`);
         saveShopDB(db);
@@ -626,7 +681,8 @@
       
       let html = custEntries.map(en => `
         <div style="padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
-          <strong>Items:</strong> ${en.items} | <strong>Total:</strong> ${en.total} XAF | <strong>Balance:</strong> ${en.balance} XAF<br>
+          <strong>Type:</strong> ${en.type} | <strong>Items:</strong> ${en.items}<br>
+          <strong>Total:</strong> ${en.total} XAF | <strong>Balance:</strong> ${en.balance} XAF<br>
           <small style="color:var(--text-muted);">Due: ${en.dueDate}</small>
         </div>
       `).join('');
@@ -648,10 +704,12 @@
     function updateStats() {
       let db = getShopDB();
       let shop = db[currentShop];
-      let outstanding = shop.entries.reduce((acc, cur) => acc + cur.balance, 0);
-      let debtors = shop.entries.filter(en => en.balance > 0).length;
+      let oweMe = shop.entries.filter(e => e.type === 'Customers Owe Me').reduce((acc, cur) => acc + cur.balance, 0);
+      let iOwe = shop.entries.filter(e => e.type === 'I Owe Customer').reduce((acc, cur) => acc + cur.balance, 0);
+      let debtors = shop.entries.filter(en => en.balance > 0 && en.type === 'Customers Owe Me').length;
 
-      document.getElementById('statOutstanding').innerText = `${outstanding.toLocaleString()} XAF`;
+      document.getElementById('statOutstanding').innerText = `${oweMe.toLocaleString()} XAF`;
+      document.getElementById('statIOwe').innerText = `${iOwe.toLocaleString()} XAF`;
       document.getElementById('statDebtors').innerText = debtors;
       document.getElementById('statCollected').innerText = `${(shop.entries.reduce((acc, cur) => acc + (cur.total - cur.balance), 0)).toLocaleString()} XAF`;
     }
@@ -659,7 +717,7 @@
     function exportCSV() {
       let db = getShopDB();
       let shop = db[currentShop];
-      let csv = "Name,Phone,Items,Total,Balance,DueDate\n" + shop.entries.map(e => `${e.name},${e.phone},"${e.items}",${e.total},${e.balance},${e.dueDate}`).join("\n");
+      let csv = "Name,Phone,Items,Type,Total,Balance,DueDate\n" + shop.entries.map(e => `${e.name},${e.phone},"${e.items}",${e.type},${e.total},${e.balance},${e.dueDate}`).join("\n");
       let blob = new Blob([csv], { type: 'text/csv' });
       let url = window.URL.createObjectURL(blob);
       let a = document.createElement('a');
@@ -667,20 +725,6 @@
       a.setAttribute('download', 'myshopguard_ledger.csv');
       a.click();
     }
-
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById('installBanner').style.display = 'flex';
-    });
-    document.getElementById('installBtn').addEventListener('click', (e) => {
-      document.getElementById('installBanner').style.display = 'none';
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-      }
-    });
   </script>
 </body>
 </html>
