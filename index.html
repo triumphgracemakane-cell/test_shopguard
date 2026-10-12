@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MyShopGuard - Secure Digital Credit Ledger</title>
+  
+  <!-- Web App Icons for "Add to Home Screen" -->
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="apple-touch-icon" href="logo.jpg">
+  <link rel="manifest" href='data:application/manifest+json,{"name":"MyShopGuard","short_name":"MyShopGuard","start_url":"/","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"logo.jpg","sizes":"192x192 512x512","type":"image/jpeg"}]}'>
+
   <style>
     :root {
       --primary: #0f172a;
@@ -48,7 +54,6 @@
     .btn-success { background: var(--success); color: white; }
     .btn-disabled { background: #cbd5e1; color: #64748b; cursor: not-allowed; }
 
-    /* Completely transparent hero content - clear image underneath */
     .hero-content {
       max-width: 800px;
       margin: auto auto;
@@ -240,7 +245,7 @@
           <div class="value" id="statIOwe" style="color: var(--danger);">0 XAF</div>
         </div>
         <div class="stat-card">
-          <h4>Active Debtors</h4>
+          <h4>Active Customer Records</h4>
           <div class="value" id="statDebtors">0</div>
         </div>
       </div>
@@ -426,7 +431,7 @@
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
       } else {
-        showAppAlert("Add to Home Screen", "To install, tap your browser menu (3 dots) and select 'Add to Home screen' or 'Install App'.");
+        showAppAlert("Add to Home Screen", "To install, tap your mobile browser menu (3 dots or share button) and select 'Add to Home screen' or 'Install App'.");
       }
     }
 
@@ -619,7 +624,9 @@
             ? `<span class="badge badge-blue">I Owe Customer</span>` 
             : (isOverdue ? `<span class="badge badge-danger">Overdue</span>` : `<span class="badge badge-warning">Pending</span>`));
 
-        let momoMsg = encodeURIComponent(`Hello ${en.name}, gentle reminder from ${shop.name} for your balance of ${en.balance} XAF. Pay via MTN MoMo (*126#) or Orange Money (#150#). Thank you!`);
+        // EXACT MOMO USSD CODE FORMAT: *126*9*shopowners_momo_number*amount#
+        let ussdCode = `*126*9*${currentShop}*${en.balance}#`;
+        let momoMsg = encodeURIComponent(`Hello ${en.name}, gentle reminder from ${shop.name} for your balance of ${en.balance} XAF. You can pay via MTN MoMo using: ${ussdCode} or Orange Money (#150#). Thank you!`);
         let waLink = `https://wa.me/237${en.phone}?text=${momoMsg}`;
         let smsLink = `sms:+237${en.phone}?body=${momoMsg}`;
 
@@ -719,13 +726,14 @@
     function updateStats() {
       let db = getShopDB();
       let shop = db[currentShop];
+      
       let oweMe = shop.entries.filter(e => e.type === 'Customers Owe Me').reduce((acc, cur) => acc + cur.balance, 0);
       let iOwe = shop.entries.filter(e => e.type === 'I Owe Customer').reduce((acc, cur) => acc + cur.balance, 0);
-      let debtors = shop.entries.filter(en => en.balance > 0 && en.type === 'Customers Owe Me').length;
+      let activeRecords = shop.entries.filter(en => en.balance > 0).length;
 
       document.getElementById('statOutstanding').innerText = `${oweMe.toLocaleString()} XAF`;
       document.getElementById('statIOwe').innerText = `${iOwe.toLocaleString()} XAF`;
-      document.getElementById('statDebtors').innerText = debtors;
+      document.getElementById('statDebtors').innerText = activeRecords;
       document.getElementById('statCollected').innerText = `${(shop.entries.reduce((acc, cur) => acc + (cur.total - cur.balance), 0)).toLocaleString()} XAF`;
     }
 
