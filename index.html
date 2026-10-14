@@ -28,7 +28,6 @@
     .view-section { display: none; }
     .view-section.active { display: block; }
 
-    /* Plain, clear hero background with NO color overlay or blur */
     .hero-section {
       background: url('background.jpg') no-repeat center center/cover;
       min-height: 85vh; display: flex; flex-direction: column; justify-content: space-between; color: white;
@@ -429,7 +428,12 @@
     function promptInstall() {
       if (deferredPrompt) {
         deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+          }
+          deferredPrompt = null;
+        });
       } else {
         showAppAlert("Add to Home Screen", "To install, tap your mobile browser menu (3 dots or share button) and select 'Add to Home screen' or 'Install App'.");
       }
@@ -624,7 +628,6 @@
             ? `<span class="badge badge-blue">I Owe Customer</span>` 
             : (isOverdue ? `<span class="badge badge-danger">Overdue</span>` : `<span class="badge badge-warning">Pending</span>`));
 
-        // EXACT MOMO USSD CODE FORMAT: *126*9*shopowners_momo_number*amount#
         let ussdCode = `*126*9*${currentShop}*${en.balance}#`;
         let momoMsg = encodeURIComponent(`Hello ${en.name}, gentle reminder from ${shop.name} for your balance of ${en.balance} XAF. You can pay via MTN MoMo using: ${ussdCode} or Orange Money (#150#). Thank you!`);
         let waLink = `https://wa.me/237${en.phone}?text=${momoMsg}`;
