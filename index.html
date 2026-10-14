@@ -177,7 +177,7 @@
         <div class="feature-card">
           <div class="feature-icon">🔒</div>
           <h3>Enhanced Security</h3>
-          <p>Protected by rate-limited login, automatic session timeout, and secure one-time OTP recovery codes.</p>
+          <p>Protected by rate-limited login, automatic session timeout, and secure 6-digit PIN verification.</p>
         </div>
       </div>
     </div>
@@ -371,8 +371,8 @@
           <input type="tel" id="signupPhone" required maxlength="9" pattern="[0-9]{9}" placeholder="6XXXXXXXX">
         </div>
         <div class="form-group">
-          <label>4-Digit PIN</label>
-          <input type="password" id="signupPin" required maxlength="4" pattern="[0-9]{4}" placeholder="••••">
+          <label>6-Digit PIN</label>
+          <input type="password" id="signupPin" required maxlength="6" pattern="[0-9]{6}" placeholder="••••••">
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%;">Register Shop</button>
       </form>
@@ -384,15 +384,15 @@
     <div class="modal-content">
       <button class="close-modal" onclick="closeModal('signinModal')">&times;</button>
       <h3>Sign In to MyShopGuard</h3>
-      <p class="modal-subtitle">Enter your phone and PIN to access your ledger.</p>
+      <p class="modal-subtitle">Enter your phone and 6-digit PIN to access your ledger.</p>
       <form onsubmit="handleSignin(event)">
         <div class="form-group">
           <label>Phone Number (9 Digits)</label>
           <input type="tel" id="signinPhone" required maxlength="9" pattern="[0-9]{9}" placeholder="6XXXXXXXX">
         </div>
         <div class="form-group">
-          <label>4-Digit PIN</label>
-          <input type="password" id="signinPin" required maxlength="4" pattern="[0-9]{4}" placeholder="••••">
+          <label>6-Digit PIN</label>
+          <input type="password" id="signinPin" required maxlength="6" pattern="[0-9]{6}" placeholder="••••••">
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
       </form>
@@ -429,13 +429,10 @@
       if (deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('User accepted the install prompt');
-          }
           deferredPrompt = null;
         });
       } else {
-        showAppAlert("Add to Home Screen", "To install, tap your mobile browser menu (3 dots or share button) and select 'Add to Home screen' or 'Install App'.");
+        console.log("Install prompt not available on this browser/device.");
       }
     }
 
@@ -537,16 +534,18 @@
         showAppAlert("Error", "Phone number not registered.");
         return;
       }
-      const otp = Math.floor(1000 + Math.random() * 9000);
-      showAppAlert("OTP Recovery Sent", `[SIMULATED SMS] Your one-time reset code is: ${otp}`);
-      const userOtp = prompt("Enter the 4-digit OTP received:");
+      const otp = Math.floor(100000 + Math.random() * 900000);
+      showAppAlert("OTP Recovery Sent", `[SIMULATED SMS] Your 6-digit one-time reset code is: ${otp}`);
+      const userOtp = prompt("Enter the 6-digit OTP received:");
       if (userOtp === otp.toString()) {
-        const newPin = prompt("Enter your new 4-digit PIN:");
-        if (newPin && newPin.length === 4) {
+        const newPin = prompt("Enter your new 6-digit PIN:");
+        if (newPin && newPin.length === 6) {
           db[phone.trim()].pin = newPin;
           saveShopDB(db);
           showAppAlert("Success", "PIN updated successfully! Please sign in.");
           openModal('signinModal');
+        } else {
+          showAppAlert("Error", "PIN must be exactly 6 digits.");
         }
       } else {
         showAppAlert("Error", "Invalid OTP code.");
